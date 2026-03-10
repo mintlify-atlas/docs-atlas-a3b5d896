@@ -1,0 +1,394 @@
+---
+title: Memory Model
+description: How Mi Compilador manages runtime memory and variable storage during program execution
+---
+
+# Memory Model
+
+Mi Compilador uses a simple but effective memory model based on a Python dictionary to store variable values during program execution. This runtime memory is managed entirely by the `Visitor` class.
+
+## Memory Structure
+
+The memory is implemented as a dictionary in the `Visitor` class:
+
+```python Visitor.py
+class Visitor(ExpresionesVisitor):
+    def __init__(self):
+        self.memoria = {}  # Variable name → Value mapping
+```
+
+### Memory Properties
+
+| Property | Description |
+|----------|-------------|
+| **Type** | Python dictionary (`dict`) |
+| **Keys** | Variable names (strings) |
+| **Values** | Integer values |
+| **Scope** | Global (single namespace) |
+| **Lifetime** | Entire program execution |
+
+## Variable Storage
+
+### Variable Assignment
+
+When a variable is assigned, it's stored in memory:
+
+```python Visitor.py
+def visitInstrAsig(self, ctx):
+    nombre_var = ctx.asignacion().ID().getText()
+    valor = self.visit(ctx.asignacion().expr())
+    self.memoria[nombre_var] = valor
+    print(f"Asignación: {nombre_var} = {valor}")
+    return valor
+```
+
+<Steps>
+  <Step title="Extract variable name">
+    Get the identifier from the assignment context
+  </Step>
+  <Step title="Evaluate expression">
+    Calculate the right-hand side value
+  </Step>
+  <Step title="Store in memory">
+    Update the dictionary: `self.memoria[nombre_var] = valor`
+  </Step>
+  <Step title="Return the value">
+    Return the assigned value for use in other expressions
+  </Step>
+</Steps>
+
+### Example
+
+```text
+program {
+    int x;
+    int y;
+    x = 10;
+    y = 20;
+}
+```
+
+Memory state after execution:
+```python
+{
+    'x': 10,
+    'y': 20
+}
+```
+
+## Variable Retrieval
+
+### Variable Lookup
+
+When a variable is used in an expression, its value is retrieved:
+
+```python Visitor.py
+def visitVariable(self, ctx):
+    nombre = ctx.ID().getText()
+    if nombre in self.memoria:
+        return self.memoria[nombre]
+    print(f"Error: Variable '{nombre}' no definida.")
+    return 0
+```
+
+- Checks if the variable exists in memory
+- Returns the stored value if found
+- Prints an error and returns `0` if undefined
+
+<Warning>
+The language does NOT enforce variable declarations. You can assign to a variable without declaring it with `int`. However, reading an undefined variable returns `0` and prints an error.
+</Warning>
+
+## Memory Operations
+
+### Assignment and Reassignment
+
+Variables can be reassigned multiple times:
+
+```text
+program {
+    int x;
+    x = 5;      // Memory: {'x': 5}
+    x = 10;     // Memory: {'x': 10}
+    x = x + 1;  // Memory: {'x': 11}
+}
+```
+
+Each assignment overwrites the previous value.
+
+### Using Variables in Expressions
+
+Variables can be used in arithmetic and relational expressions:
+
+```text
+program {
+    int a;
+    int b;
+    int sum;
+    
+    a = 5;
+    b = 3;
+    sum = a + b;  // Reads 'a' (5) and 'b' (3), stores 8 in 'sum'
+}
+```
+
+Memory trace:
+1. After `a = 5`: `{'a': 5}`
+2. After `b = 3`: `{'a': 5, 'b': 3}`
+3. After `sum = a + b`: `{'a': 5, 'b': 3, 'sum': 8}`
+
+## Variable Declarations
+
+### Declaration vs. Definition
+
+The language distinguishes between declaration and assignment:
+
+```text
+int x;      // Declaration - does NOT create memory entry
+x = 10;     // Assignment - creates/updates memory entry
+```
+
+### How Declarations Work
+
+Variable declarations are parsed but **not stored** in memory:
+
+```python
+def visitInstrDecl(self, ctx):
+    # The base implementation does nothing
+    return self.visitChildren(ctx)
+```
+
+Declarations serve as documentation but don't affect runtime memory. Memory entries are only created on assignment.
+
+<Note>
+This means you can use a variable without declaring it, as long as you assign it first. Declarations are optional in practice.
+</Note>
+
+## Scope and Lifetime
+
+### Global Scope
+
+All variables exist in a **single global scope**:
+
+```text
+program {
+    int x;
+    x = 5;
+    
+    if (x > 0) {
+        int y;   // 'y' is in the same scope as 'x'
+        y = 10;
+    }
+    
+    // 'y' is still accessible here
+}
+```
+
+There is no block-level scoping. Variables declared inside `if` blocks are accessible everywhere.
+
+### Memory Lifetime
+
+Memory persists for the entire program execution:
+
+```python Prueba.py
+visitor = Visitor()     # Memory created: {}
+visitor.visit(tree)     # Program executes, memory updated
+print(visitor.memoria)  # Final memory state printed
+```
+
+The memory is cleared only when the program terminates.
+
+## Error Handling
+
+### Undefined Variable Access
+
+Reading an undefined variable prints an error and returns `0`:
+
+```text
+program {
+    int result;
+    result = x + 5;  // Error: Variable 'x' no definida.
+                     // result = 0 + 5 = 5
+}
+```
+
+Output:
+```
+Error: Variable 'x' no definida.
+Asignación: result = 5
+Estado de la memoria: {'result': 5}
+```
+
+### Division by Zero
+
+Python's integer division handles division by zero:
+
+```text
+program {
+    int x;
+    x = 10 / 0;  // Raises ZeroDivisionError
+}
+```
+
+The program will crash with a runtime exception.
+
+<Warning>
+There is no built-in protection against division by zero. The program will terminate with an error.
+</Warning>
+
+## Memory Inspection
+
+### Viewing Memory State
+
+After execution, the memory state is printed:
+
+```python Prueba.py
+print(f"Estado de la memoria: {visitor.memoria}")
+```
+
+Example output:
+```
+Estado de la memoria: {'x': 10, 'y': 20, 'resultado': 12}
+```
+
+### Tracing Assignments
+
+Each assignment prints a message:
+
+```
+Asignación: x = 10
+Asignación: y = 20
+Asignación: resultado = 12
+```
+
+This helps debug programs and understand execution flow.
+
+## Memory Examples
+
+### Example 1: Sequential Assignments
+
+```text
+program {
+    int a;
+    a = 1;
+    a = 2;
+    a = 3;
+}
+```
+
+Memory evolution:
+- After `a = 1`: `{'a': 1}`
+- After `a = 2`: `{'a': 2}`
+- After `a = 3`: `{'a': 3}`
+
+### Example 2: Variable Reuse
+
+```text
+program {
+    int x;
+    x = 5;
+    x = x * 2;
+    x = x + 10;
+}
+```
+
+Memory trace:
+1. `x = 5` → `{'x': 5}`
+2. `x = x * 2` → Read `x` (5), compute `5 * 2 = 10`, store → `{'x': 10}`
+3. `x = x + 10` → Read `x` (10), compute `10 + 10 = 20`, store → `{'x': 20}`
+
+### Example 3: Conditional Memory Updates
+
+```text
+program {
+    int flag;
+    int x;
+    
+    x = 5;
+    
+    if (x > 0) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+}
+```
+
+Memory after execution: `{'x': 5, 'flag': 1}`
+
+## Limitations
+
+<CardGroup cols={2}>
+  <Card title="No Scoping" icon="layer-group">
+    All variables are global; no block-level scope
+  </Card>
+  <Card title="Integer Only" icon="hashtag">
+    Only supports integer values, no strings or floats
+  </Card>
+  <Card title="No Garbage Collection" icon="trash">
+    Variables persist until program ends
+  </Card>
+  <Card title="No Type Checking" icon="shield-xmark">
+    No validation of variable types
+  </Card>
+</CardGroup>
+
+## Extending the Memory Model
+
+### Adding Type Support
+
+To support multiple types, change the memory structure:
+
+```python
+self.memoria = {}  # name → {'type': 'int', 'value': 10}
+```
+
+### Adding Block Scoping
+
+Implement a scope stack:
+
+```python
+class Visitor(ExpresionesVisitor):
+    def __init__(self):
+        self.scopes = [{}]  # Stack of scope dictionaries
+    
+    def push_scope(self):
+        self.scopes.append({})
+    
+    def pop_scope(self):
+        self.scopes.pop()
+    
+    def store(self, name, value):
+        self.scopes[-1][name] = value
+```
+
+### Adding Type Checking
+
+Validate types during assignment:
+
+```python
+def visitInstrAsig(self, ctx):
+    nombre_var = ctx.asignacion().ID().getText()
+    valor = self.visit(ctx.asignacion().expr())
+    
+    # Type check
+    if not isinstance(valor, int):
+        raise TypeError(f"Variable '{nombre_var}' must be an integer")
+    
+    self.memoria[nombre_var] = valor
+```
+
+## Key Takeaways
+
+- Memory is a simple Python dictionary: `{'variable': value}`
+- Variables are stored on assignment, not declaration
+- All variables have global scope
+- Undefined variables return `0` with an error message
+- Memory persists for the entire program execution
+- The memory state is printed after execution
+
+## Next Steps
+
+- Learn how to [Extend the Grammar](/development/extending-grammar) for new features
+- See the [Visitor Pattern](/architecture/visitor-pattern) implementation
+- Explore [Testing](/development/testing) techniques for memory behavior

@@ -1,0 +1,712 @@
+---
+title: "Testing the Compiler"
+description: "Comprehensive guide to testing Mi Compilador features and catching bugs"
+---
+
+## Overview
+
+Testing is crucial for ensuring your compiler works correctly. This guide covers creating test programs, running tests, and verifying results.
+
+## Understanding Prueba.py
+
+The test runner `Prueba.py` performs three main tasks:
+
+1. **Lexical/Syntax Analysis** - Checks if your program is grammatically correct
+2. **Execution** - Runs the program using the visitor
+3. **Output** - Shows execution results and final memory state
+
+```python Prueba.py structure
+def main():
+    # 1. Load input file
+    input_stream = FileStream(archivo_ruta, encoding='utf-8')
+    
+    # 2. Tokenize (Lexer)
+    lexer = ExpresionesLexer(input_stream)
+    token_stream = CommonTokenStream(lexer)
+    
+    # 3. Parse (Parser)
+    parser = ExpresionesParser(token_stream)
+    tree = parser.root()
+    
+    # 4. Check for syntax errors
+    if parser.getNumberOfSyntaxErrors() > 0:
+        print(f"[ERROR] Errores gramaticales.")
+    else:
+        # 5. Execute with visitor
+        visitor = Visitor()
+        visitor.visit(tree)
+        print(f"Estado de la memoria: {visitor.memoria}")
+```
+
+## Creating Test Programs
+
+Test programs are text files containing Mi Compilador code.
+
+### Basic Test Structure
+
+```text test_basic.txt
+program {
+    int x;
+    int y;
+    int resultado;
+    
+    x = 5;
+    y = 3;
+    resultado = x + y;
+}
+```
+
+<Tip>
+  Start with simple tests and gradually increase complexity.
+</Tip>
+
+### Test File Naming Convention
+
+```
+test_<feature>_<scenario>.txt
+
+Examples:
+- test_arithmetic_addition.txt
+- test_if_with_else.txt
+- test_while_countdown.txt
+- test_error_undefined_var.txt
+```
+
+## Running Tests
+
+<Steps>
+  <Step title="Create a test file">
+    Create `test_arithmetic.txt`:
+
+    ```text
+    program {
+        int a;
+        int b;
+        int suma;
+        int resta;
+        int producto;
+        int division;
+        
+        a = 10;
+        b = 3;
+        
+        suma = a + b;
+        resta = a - b;
+        producto = a * b;
+        division = a / b;
+    }
+    ```
+  </Step>
+
+  <Step title="Run the test">
+    ```bash
+    python3 Prueba.py test_arithmetic.txt
+    ```
+  </Step>
+
+  <Step title="Verify output">
+    Expected output:
+    ```
+    [OK] Archivo 'test_arithmetic.txt' cargado correctamente.
+    ------------------------------
+    Asignación: a = 10
+    Asignación: b = 3
+    Asignación: suma = 13
+    Asignación: resta = 7
+    Asignación: producto = 30
+    Asignación: division = 3
+    ------------------------------
+    Ejecución finalizada con éxito.
+    Estado de la memoria: {'a': 10, 'b': 3, 'suma': 13, 'resta': 7, 'producto': 30, 'division': 3}
+    ```
+  </Step>
+</Steps>
+
+## Testing Syntax Errors
+
+Test that your compiler correctly detects invalid syntax.
+
+### Missing Semicolon
+
+```text test_error_missing_semicolon.txt
+program {
+    int x
+    x = 5;
+}
+```
+
+**Expected output:**
+```
+[ERROR] El archivo 'test_error_missing_semicolon.txt' tiene errores gramaticales.
+```
+
+### Invalid Token
+
+```text test_error_invalid_token.txt
+program {
+    int x;
+    x = 5 & 3;
+}
+```
+
+**Expected:** Syntax error (if `&` is not defined)
+
+### Missing Braces
+
+```text test_error_missing_brace.txt
+program {
+    int x;
+    x = 5;
+```
+
+**Expected:** Syntax error about missing `}`
+
+<Warning>
+  Syntax errors are caught by the parser before execution. The visitor never runs if there are syntax errors.
+</Warning>
+
+## Testing Runtime Errors
+
+Test error handling during execution.
+
+### Undefined Variable
+
+```text test_error_undefined_var.txt
+program {
+    int resultado;
+    resultado = x + 5;
+}
+```
+
+**Expected output:**
+```
+[OK] Archivo 'test_error_undefined_var.txt' cargado correctamente.
+------------------------------
+Error: Variable 'x' no definida.
+Asignación: resultado = 5
+------------------------------
+Ejecución finalizada con éxito.
+Estado de la memoria: {'resultado': 5}
+```
+
+<Tip>
+  Notice the program continues executing. The visitor returns 0 for undefined variables.
+</Tip>
+
+### Division by Zero
+
+```text test_error_division_zero.txt
+program {
+    int a;
+    int b;
+    int resultado;
+    
+    a = 10;
+    b = 0;
+    resultado = a / b;
+}
+```
+
+If you implemented division-by-zero checking:
+```python
+if op == '/' and der == 0:
+    print("Error: División por cero")
+    return 0
+```
+
+**Expected output:**
+```
+Asignación: a = 10
+Asignación: b = 0
+Error: División por cero
+Asignación: resultado = 0
+```
+
+## Testing Control Flow
+
+### If Statement
+
+```text test_if_simple.txt
+program {
+    int x;
+    int resultado;
+    
+    x = 10;
+    
+    if (x > 5) {
+        resultado = 1;
+    }
+    
+    if (x < 5) {
+        resultado = 0;
+    }
+}
+```
+
+**Expected memory:** `{'x': 10, 'resultado': 1}`
+
+### If-Else
+
+```text test_if_else.txt
+program {
+    int edad;
+    int categoria;
+    
+    edad = 25;
+    
+    if (edad >= 18) {
+        categoria = 1;
+    } else {
+        categoria = 0;
+    }
+}
+```
+
+**Expected memory:** `{'edad': 25, 'categoria': 1}`
+
+### Nested If
+
+```text test_if_nested.txt
+program {
+    int x;
+    int y;
+    int resultado;
+    
+    x = 10;
+    y = 20;
+    
+    if (x > 5) {
+        if (y > 15) {
+            resultado = 3;
+        } else {
+            resultado = 2;
+        }
+    } else {
+        resultado = 1;
+    }
+}
+```
+
+**Expected memory:** `{'x': 10, 'y': 20, 'resultado': 3}`
+
+## Testing Relational Operators
+
+```text test_relational.txt
+program {
+    int a;
+    int b;
+    int r1;
+    int r2;
+    int r3;
+    int r4;
+    int r5;
+    int r6;
+    
+    a = 10;
+    b = 5;
+    
+    if (a > b) { r1 = 1; } else { r1 = 0; }
+    if (a < b) { r2 = 1; } else { r2 = 0; }
+    if (a == b) { r3 = 1; } else { r3 = 0; }
+    if (a != b) { r4 = 1; } else { r4 = 0; }
+    if (a >= b) { r5 = 1; } else { r5 = 0; }
+    if (a <= b) { r6 = 1; } else { r6 = 0; }
+}
+```
+
+**Expected memory:**
+```
+{'a': 10, 'b': 5, 'r1': 1, 'r2': 0, 'r3': 0, 'r4': 1, 'r5': 1, 'r6': 0}
+```
+
+## Testing Expression Evaluation
+
+### Operator Precedence
+
+```text test_precedence.txt
+program {
+    int resultado;
+    
+    resultado = 2 + 3 * 4;
+}
+```
+
+**Expected:** `resultado = 14` (not 20)
+
+If you get 20, your grammar doesn't respect operator precedence.
+
+### Parentheses
+
+```text test_parentheses.txt
+program {
+    int r1;
+    int r2;
+    
+    r1 = (2 + 3) * 4;
+    r2 = 2 + (3 * 4);
+}
+```
+
+**Expected memory:** `{'r1': 20, 'r2': 14}`
+
+### Complex Expressions
+
+```text test_complex_expr.txt
+program {
+    int x;
+    int y;
+    int z;
+    int resultado;
+    
+    x = 5;
+    y = 3;
+    z = 2;
+    
+    resultado = (x + y) * z - (x / z);
+}
+```
+
+**Expected:** `resultado = (5 + 3) * 2 - (5 / 2) = 16 - 2 = 14`
+
+## Testing Memory State
+
+Verify that variables maintain correct values throughout execution.
+
+```text test_memory_updates.txt
+program {
+    int contador;
+    
+    contador = 0;
+    contador = contador + 1;
+    contador = contador + 1;
+    contador = contador + 1;
+}
+```
+
+**Expected memory:** `{'contador': 3}`
+
+### Variable Reassignment
+
+```text test_reassignment.txt
+program {
+    int x;
+    
+    x = 5;
+    x = 10;
+    x = x + 5;
+}
+```
+
+**Expected memory:** `{'x': 15}`
+
+## Testing Edge Cases
+
+### Empty Program
+
+```text test_empty.txt
+program {
+}
+```
+
+**Expected:** Success with empty memory
+
+### Single Operation
+
+```text test_single_operation.txt
+program {
+    int x;
+    x = 42;
+}
+```
+
+**Expected memory:** `{'x': 42}`
+
+### Large Numbers
+
+```text test_large_numbers.txt
+program {
+    int x;
+    int y;
+    
+    x = 999999;
+    y = x + 1;
+}
+```
+
+**Expected memory:** `{'x': 999999, 'y': 1000000}`
+
+### Negative Results
+
+```text test_negative.txt
+program {
+    int a;
+    int b;
+    int resultado;
+    
+    a = 5;
+    b = 10;
+    resultado = a - b;
+}
+```
+
+**Expected memory:** `{'a': 5, 'b': 10, 'resultado': -5}`
+
+## Creating a Test Suite
+
+Organize your tests into a comprehensive suite.
+
+### Directory Structure
+
+```
+tests/
+├── arithmetic/
+│   ├── test_addition.txt
+│   ├── test_subtraction.txt
+│   ├── test_multiplication.txt
+│   └── test_division.txt
+├── control_flow/
+│   ├── test_if_simple.txt
+│   ├── test_if_else.txt
+│   └── test_nested_if.txt
+├── errors/
+│   ├── test_undefined_var.txt
+│   ├── test_division_zero.txt
+│   └── test_syntax_error.txt
+└── edge_cases/
+    ├── test_empty.txt
+    ├── test_large_numbers.txt
+    └── test_negative.txt
+```
+
+### Bash Test Runner Script
+
+Create `run_tests.sh`:
+
+```bash
+#!/bin/bash
+
+echo "Running Mi Compilador Test Suite"
+echo "================================="
+
+PASSED=0
+FAILED=0
+
+for test_file in tests/**/*.txt; do
+    echo "\nTesting: $test_file"
+    
+    if python3 Prueba.py "$test_file" > /dev/null 2>&1; then
+        echo "✓ PASSED"
+        ((PASSED++))
+    else
+        echo "✗ FAILED"
+        ((FAILED++))
+    fi
+done
+
+echo "\n================================="
+echo "Results: $PASSED passed, $FAILED failed"
+```
+
+Run all tests:
+```bash
+chmod +x run_tests.sh
+./run_tests.sh
+```
+
+### Python Test Runner
+
+Create `run_tests.py`:
+
+```python
+import os
+import subprocess
+import sys
+
+def run_test(test_file):
+    """Run a single test file and return success status."""
+    try:
+        result = subprocess.run(
+            ["python3", "Prueba.py", test_file],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        
+        # Check for syntax errors
+        if "[ERROR]" in result.stdout:
+            return False, "Syntax error"
+        
+        # Check for successful execution
+        if "Ejecución finalizada con éxito" in result.stdout:
+            return True, "Success"
+        
+        return False, "Unexpected output"
+    except subprocess.TimeoutExpired:
+        return False, "Timeout (possible infinite loop)"
+    except Exception as e:
+        return False, str(e)
+
+def main():
+    test_dir = "tests"
+    
+    if not os.path.exists(test_dir):
+        print(f"Error: Directory '{test_dir}' not found")
+        sys.exit(1)
+    
+    # Collect all test files
+    test_files = []
+    for root, dirs, files in os.walk(test_dir):
+        for file in files:
+            if file.endswith(".txt"):
+                test_files.append(os.path.join(root, file))
+    
+    print("Mi Compilador Test Suite")
+    print("=" * 50)
+    print(f"Found {len(test_files)} tests\n")
+    
+    passed = 0
+    failed = 0
+    
+    for test_file in sorted(test_files):
+        success, message = run_test(test_file)
+        
+        status = "✓ PASS" if success else "✗ FAIL"
+        print(f"{status:10} {test_file:40} {message}")
+        
+        if success:
+            passed += 1
+        else:
+            failed += 1
+    
+    print("\n" + "=" * 50)
+    print(f"Results: {passed} passed, {failed} failed")
+    
+    return 0 if failed == 0 else 1
+
+if __name__ == "__main__":
+    sys.exit(main())
+```
+
+Run:
+```bash
+python3 run_tests.py
+```
+
+## Testing Best Practices
+
+<Tip>
+  **Test One Thing at a Time**
+  
+  Each test should focus on a single feature or scenario.
+</Tip>
+
+<Tip>
+  **Use Descriptive Names**
+  
+  `test_if_with_nested_conditions.txt` is better than `test1.txt`
+</Tip>
+
+<Tip>
+  **Document Expected Results**
+  
+  Add comments in your test files:
+  
+  ```text
+  program {
+      // Test: Division should return integer result
+      // Expected: resultado = 3
+      int resultado;
+      resultado = 10 / 3;
+  }
+  ```
+</Tip>
+
+<Tip>
+  **Test Boundary Conditions**
+  
+  - Zero values
+  - Negative numbers
+  - Large numbers
+  - Empty cases
+</Tip>
+
+<Warning>
+  **Don't Only Test Success Cases**
+  
+  Error handling is just as important. Test invalid inputs, undefined variables, and edge cases.
+</Warning>
+
+## Debugging Failed Tests
+
+### Enable Verbose Output
+
+Modify `Visitor.py` methods to print debug information:
+
+```python
+def visitInstrIf(self, ctx):
+    condicion = self.visit(ctx.exprRelacional())
+    print(f"[DEBUG] If condition evaluated to: {condicion}")  # Debug line
+    
+    if condicion:
+        return self.visit(ctx.bloque(0))
+    elif ctx.bloque(1):
+        return self.visit(ctx.bloque(1))
+    return None
+```
+
+### Check Memory State at Checkpoints
+
+```python
+def visitInstrAsig(self, ctx):
+    nombre_var = ctx.asignacion().ID().getText()
+    valor = self.visit(ctx.asignacion().expr())
+    self.memoria[nombre_var] = valor
+    
+    print(f"Asignación: {nombre_var} = {valor}")
+    print(f"[DEBUG] Memory: {self.memoria}")  # Debug line
+    
+    return valor
+```
+
+### Use a Debugger
+
+```bash
+python3 -m pdb Prueba.py test_file.txt
+```
+
+Useful pdb commands:
+- `n` - Next line
+- `s` - Step into function
+- `c` - Continue execution
+- `p variable` - Print variable value
+- `l` - List source code
+
+## Performance Testing
+
+Test that your compiler handles larger programs efficiently.
+
+```text test_performance.txt
+program {
+    int i;
+    int suma;
+    
+    i = 0;
+    suma = 0;
+    
+    // This would require a loop implementation
+    suma = suma + 1;
+    suma = suma + 2;
+    suma = suma + 3;
+    // ... repeat many times
+}
+```
+
+<Warning>
+  If implementing loops (while, for), test for infinite loop detection.
+</Warning>
+
+## Next Steps
+
+- [Extending Grammar](/development/extending-grammar) - Add new language features
+- [Adding Features](/development/adding-features) - Implement visitor methods
+- [Quickstart Guide](/quickstart) - Learn how to run the compiler

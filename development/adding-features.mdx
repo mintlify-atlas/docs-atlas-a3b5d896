@@ -1,0 +1,527 @@
+---
+title: "Adding Features"
+description: "Step-by-step guide to implementing new language features in the visitor"
+---
+
+## Overview
+
+After extending the grammar, you need to implement the corresponding visitor methods in `Visitor.py`. The visitor pattern executes your compiler logic by traversing the parse tree.
+
+## How Visitor Methods Work
+
+ANTLR generates a visitor method for each labeled rule alternative in your grammar:
+
+**Grammar Rule (Expresiones.g):**
+```antlr
+instrucciones
+    : asignacion ';'  #InstrAsig
+    | declaracion ';' #InstrDecl
+    ;
+```
+
+**Generated Visitor Methods:**
+- `visitInstrAsig(self, ctx)` - Called for assignment instructions
+- `visitInstrDecl(self, ctx)` - Called for declaration instructions
+
+<Tip>
+  The label name after `#` determines the visitor method name: `#InstrAsig` → `visitInstrAsig()`
+</Tip>
+
+## Understanding the Context Object (ctx)
+
+The `ctx` parameter provides access to the parse tree node:
+
+```python
+def visitInstrAsig(self, ctx):
+    # Access child rules
+    nombre_var = ctx.asignacion().ID().getText()
+    valor = self.visit(ctx.asignacion().expr())
+    
+    # Access tokens directly
+    op = ctx.getChild(1).getText()  # Get operator token
+    
+    # Visit child expressions recursively
+    result = self.visit(ctx.expr())
+```
+
+### Common ctx Methods
+
+- `ctx.ID()` - Get identifier token
+- `ctx.NUM()` - Get number token
+- `ctx.expr()` - Get single expression rule
+- `ctx.expr(0)`, `ctx.expr(1)` - Get multiple expressions by index
+- `ctx.getText()` - Get the full text of this node
+- `ctx.getChild(i)` - Get child node by index
+- `self.visit(ctx.child())` - Recursively visit child nodes
+
+## Adding a Print Statement
+
+Let's implement a complete feature from scratch.
+
+<Steps>
+  <Step title="Extend the grammar">
+    First, add the print statement to `Expresiones.g`:
+
+    ```antlr
+    instrucciones
+        : declaracion ';'                       #InstrDecl
+        | asignacion ';'                        #InstrAsig
+        | 'if' '(' exprRelacional ')' bloque ('else' bloque)? #InstrIf
+        | 'print' '(' expr ')' ';'             #InstrPrint
+        ;
+    ```
+
+    Regenerate the parser:
+    ```bash
+    antlr4 -Dlanguage=Python3 -visitor Expresiones.g
+    ```
+  </Step>
+
+  <Step title="Implement the visitor method">
+    Add this method to `Visitor.py`:
+
+    ```python
+    def visitInstrPrint(self, ctx):
+        # Visit the expression inside print()
+        valor = self.visit(ctx.expr())
+        
+        # Output the value
+        print(f"Output: {valor}")
+        
+        return valor
+    ```
+  </Step>
+
+  <Step title="Test the feature">
+    Create a test file `test_print.txt`:
+
+    ```text
+    program {
+        int x;
+        x = 5 + 3;
+        print(x);
+        print(x * 2);
+    }
+    ```
+
+    Run it:
+    ```bash
+    python3 Prueba.py test_print.txt
+    ```
+
+    Expected output:
+    ```
+    [OK] Archivo 'test_print.txt' cargado correctamente.
+    ------------------------------
+    Asignación: x = 8
+    Output: 8
+    Output: 16
+    ------------------------------
+    Ejecución finalizada con éxito.
+    Estado de la memoria: {'x': 8}
+    ```
+  </Step>
+</Steps>
+
+## Adding a While Loop
+
+<Steps>
+  <Step title="Update the grammar">
+    Add while loop to `Expresiones.g`:
+
+    ```antlr
+    instrucciones
+        : declaracion ';'                       #InstrDecl
+        | asignacion ';'                        #InstrAsig
+        | 'if' '(' exprRelacional ')' bloque ('else' bloque)? #InstrIf
+        | 'while' '(' exprRelacional ')' bloque #InstrWhile
+        ;
+    ```
+
+    ```bash
+    antlr4 -Dlanguage=Python3 -visitor Expresiones.g
+    ```
+  </Step>
+
+  <Step title="Implement the while visitor">
+    Add to `Visitor.py`:
+
+    ```python
+    def visitInstrWhile(self, ctx):
+        # Evaluate condition
+        while self.visit(ctx.exprRelacional()):
+            # Execute block
+            self.visit(ctx.bloque())
+        
+        return None
+    ```
+  </Step>
+
+  <Step title="Test with a countdown program">
+    Create `test_while.txt`:
+
+    ```text
+    program {
+        int contador;
+        contador = 5;
+        
+        while (contador > 0) {
+            print(contador);
+            contador = contador - 1;
+        }
+        
+        print(contador);
+    }
+    ```
+
+    Run:
+    ```bash
+    python3 Prueba.py test_while.txt
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+  Be careful with infinite loops! Always ensure the condition will eventually become false.
+</Warning>
+
+## Adding String Support
+
+<Steps>
+  <Step title="Extend the grammar">
+    Add string token and update rules:
+
+    ```antlr
+    declaracion : tipo ID ;
+    tipo : 'int' | 'string' ;
+    
+    expr: expr (MUL | DIV) expr    #Aritmetica
+        | expr (SUM | RES) expr    #Aritmetica
+        | NUM                      #Numero
+        | STRING                   #Cadena
+        | ID                       #Variable
+        | '(' expr ')'             #Parentesis
+        ;
+    
+    STRING : '"' (~["\r\n])* '"' ;
+    ```
+
+    Regenerate:
+    ```bash
+    antlr4 -Dlanguage=Python3 -visitor Expresiones.g
+    ```
+  </Step>
+
+  <Step title="Add string visitor method">
+    ```python
+    def visitCadena(self, ctx):
+        # Get string text and remove quotes
+        texto = ctx.STRING().getText()
+        return texto[1:-1]  # Remove surrounding quotes
+    ```
+  </Step>
+
+  <Step title="Update arithmetic for string concatenation">
+    Modify `visitAritmetica()` to handle string concatenation:
+
+    ```python
+    def visitAritmetica(self, ctx):
+        izq = self.visit(ctx.expr(0))
+        der = self.visit(ctx.expr(1))
+        op = ctx.getChild(1).getText()
+        
+        if izq is None or der is None:
+            return 0
+
+        # Handle string concatenation
+        if op == '+' and (isinstance(izq, str) or isinstance(der, str)):
+            return str(izq) + str(der)
+        
+        # Numeric operations
+        if op == '+': return izq + der
+        if op == '-': return izq - der
+        if op == '*': return izq * der
+        if op == '/': return izq // der
+        return 0
+    ```
+  </Step>
+
+  <Step title="Test string operations">
+    Create `test_strings.txt`:
+
+    ```text
+    program {
+        string mensaje;
+        string nombre;
+        
+        nombre = "Juan";
+        mensaje = "Hola " + nombre;
+        print(mensaje);
+    }
+    ```
+  </Step>
+</Steps>
+
+## Adding Modulo Operator (%)
+
+**Before: Visitor.py**
+```python
+def visitAritmetica(self, ctx):
+    izq = self.visit(ctx.expr(0))
+    der = self.visit(ctx.expr(1))
+    op = ctx.getChild(1).getText()
+    
+    if izq is None or der is None:
+        return 0
+
+    if op == '+': return izq + der
+    if op == '-': return izq - der
+    if op == '*': return izq * der
+    if op == '/': return izq // der
+    return 0
+```
+
+**After: Visitor.py (with modulo)**
+```python
+def visitAritmetica(self, ctx):
+    izq = self.visit(ctx.expr(0))
+    der = self.visit(ctx.expr(1))
+    op = ctx.getChild(1).getText()
+    
+    if izq is None or der is None:
+        return 0
+
+    if op == '+': return izq + der
+    if op == '-': return izq - der
+    if op == '*': return izq * der
+    if op == '/': 
+        if der == 0:
+            print("Error: División por cero")
+            return 0
+        return izq // der
+    if op == '%':
+        if der == 0:
+            print("Error: Módulo por cero")
+            return 0
+        return izq % der  # Modulo operation
+    return 0
+```
+
+Don't forget to update the grammar:
+```antlr
+expr: expr (MUL | DIV | MOD) expr    #Aritmetica
+    | expr (SUM | RES) expr          #Aritmetica
+    | NUM                            #Numero
+    | ID                             #Variable
+    | '(' expr ')'                   #Parentesis
+    ;
+
+MOD : '%' ;
+```
+
+## Memory Management
+
+The visitor maintains a memory dictionary to store variables:
+
+```python
+class Visitor(ExpresionesVisitor):
+    def __init__(self):
+        self.memoria = {}  # Variable storage
+```
+
+### Storing Variables
+
+```python
+def visitInstrAsig(self, ctx):
+    nombre_var = ctx.asignacion().ID().getText()
+    valor = self.visit(ctx.asignacion().expr())
+    
+    # Store in memory
+    self.memoria[nombre_var] = valor
+    print(f"Asignación: {nombre_var} = {valor}")
+    return valor
+```
+
+### Retrieving Variables
+
+```python
+def visitVariable(self, ctx):
+    nombre = ctx.ID().getText()
+    
+    # Check if variable exists
+    if nombre in self.memoria:
+        return self.memoria[nombre]
+    
+    # Handle undefined variable
+    print(f"Error: Variable '{nombre}' no definida.")
+    return 0
+```
+
+### Adding Type Checking
+
+You can extend memory to store types:
+
+```python
+class Visitor(ExpresionesVisitor):
+    def __init__(self):
+        self.memoria = {}      # {nombre: valor}
+        self.tipos = {}        # {nombre: tipo}
+
+def visitInstrDecl(self, ctx):
+    tipo = ctx.declaracion().tipo().getText()
+    nombre = ctx.declaracion().ID().getText()
+    
+    # Store type information
+    self.tipos[nombre] = tipo
+    
+    # Initialize with default value
+    if tipo == 'int':
+        self.memoria[nombre] = 0
+    elif tipo == 'string':
+        self.memoria[nombre] = ""
+    
+    print(f"Declaración: {tipo} {nombre}")
+    return None
+
+def visitInstrAsig(self, ctx):
+    nombre = ctx.asignacion().ID().getText()
+    valor = self.visit(ctx.asignacion().expr())
+    
+    # Type checking
+    if nombre in self.tipos:
+        tipo_esperado = self.tipos[nombre]
+        if tipo_esperado == 'int' and not isinstance(valor, int):
+            print(f"Error: Se esperaba int, se recibió {type(valor).__name__}")
+            return None
+        if tipo_esperado == 'string' and not isinstance(valor, str):
+            print(f"Error: Se esperaba string, se recibió {type(valor).__name__}")
+            return None
+    
+    self.memoria[nombre] = valor
+    print(f"Asignación: {nombre} = {valor}")
+    return valor
+```
+
+## Error Handling Best Practices
+
+<Tip>
+  Always validate inputs and handle edge cases:
+</Tip>
+
+```python
+def visitAritmetica(self, ctx):
+    izq = self.visit(ctx.expr(0))
+    der = self.visit(ctx.expr(1))
+    op = ctx.getChild(1).getText()
+    
+    # Check for None values
+    if izq is None or der is None:
+        print("Error: Operando inválido")
+        return 0
+    
+    # Division by zero check
+    if op in ['/', '%'] and der == 0:
+        print(f"Error: {'División' if op == '/' else 'Módulo'} por cero")
+        return 0
+    
+    # Type checking
+    if not isinstance(izq, (int, float)) or not isinstance(der, (int, float)):
+        print(f"Error: Operación {op} requiere operandos numéricos")
+        return 0
+    
+    # Perform operation
+    if op == '+': return izq + der
+    if op == '-': return izq - der
+    if op == '*': return izq * der
+    if op == '/': return izq // der
+    if op == '%': return izq % der
+    return 0
+```
+
+## Visitor Method Patterns
+
+### Pattern 1: Expression Evaluation
+
+For rules that compute values:
+
+```python
+def visitAritmetica(self, ctx):
+    # 1. Get operands by visiting children
+    izq = self.visit(ctx.expr(0))
+    der = self.visit(ctx.expr(1))
+    
+    # 2. Get operator
+    op = ctx.getChild(1).getText()
+    
+    # 3. Perform calculation
+    if op == '+': return izq + der
+    # ...
+```
+
+### Pattern 2: Control Flow
+
+For rules that affect program flow:
+
+```python
+def visitInstrIf(self, ctx):
+    # 1. Evaluate condition
+    condicion = self.visit(ctx.exprRelacional())
+    
+    # 2. Execute appropriate branch
+    if condicion:
+        return self.visit(ctx.bloque(0))
+    elif ctx.bloque(1):
+        return self.visit(ctx.bloque(1))
+    
+    return None
+```
+
+### Pattern 3: Side Effects
+
+For rules that modify state:
+
+```python
+def visitInstrAsig(self, ctx):
+    # 1. Get variable name
+    nombre = ctx.asignacion().ID().getText()
+    
+    # 2. Compute value
+    valor = self.visit(ctx.asignacion().expr())
+    
+    # 3. Update memory
+    self.memoria[nombre] = valor
+    
+    # 4. Optional: Log or debug output
+    print(f"Asignación: {nombre} = {valor}")
+    
+    return valor
+```
+
+## Debugging Tips
+
+<Tip>
+  Add debug prints to understand visitor execution:
+</Tip>
+
+```python
+def visitInstrWhile(self, ctx):
+    iteraciones = 0
+    while self.visit(ctx.exprRelacional()):
+        iteraciones += 1
+        print(f"[DEBUG] While iteration {iteraciones}")
+        
+        # Prevent infinite loops during development
+        if iteraciones > 1000:
+            print("Error: Posible bucle infinito detectado")
+            break
+        
+        self.visit(ctx.bloque())
+    
+    return None
+```
+
+## Next Steps
+
+- [Testing](/development/testing) - Test your new features thoroughly
+- [Extending Grammar](/development/extending-grammar) - Add more grammar rules
+- [Visitor Pattern](/architecture/visitor-pattern) - Understand the visitor pattern in depth

@@ -1,0 +1,489 @@
+---
+title: 'Conditional Statements'
+description: 'Learn how to use if-else statements and relational operators'
+icon: 'code-branch'
+---
+
+## Overview
+
+Conditional statements allow your programs to make decisions and execute different code based on conditions. Mi Compilador supports `if-else` statements with relational operators.
+
+## Relational Operators
+
+Mi Compilador supports six relational operators for comparing values:
+
+| Operator | Description | Example | Result |
+|----------|-------------|---------|--------|
+| `>` | Greater than | `10 > 5` | `true` |
+| `<` | Less than | `5 < 10` | `true` |
+| `==` | Equal to | `5 == 5` | `true` |
+| `!=` | Not equal to | `5 != 3` | `true` |
+| `>=` | Greater than or equal | `5 >= 5` | `true` |
+| `<=` | Less than or equal | `3 <= 5` | `true` |
+
+## Basic If Statement
+
+The simplest conditional checks a condition and executes code if it's true:
+
+```javascript
+program {
+    int x;
+    int result;
+    
+    x = 10;
+    
+    if (x > 5) {
+        result = 1;
+    }
+}
+```
+
+### Execution Flow
+
+<Steps>
+
+<Step title="Assign value">
+`x = 10` is executed first.
+</Step>
+
+<Step title="Evaluate condition">
+The condition `x > 5` is evaluated: `10 > 5` = `true`
+</Step>
+
+<Step title="Execute if block">
+Since the condition is true, the code inside the if block executes: `result = 1`
+</Step>
+
+</Steps>
+
+**Output:**
+```
+Asignación: x = 10
+Asignación: result = 1
+```
+
+## If-Else Statements
+
+Use `else` to execute alternative code when the condition is false:
+
+```javascript
+program {
+    int score;
+    int passed;
+    int failed;
+    
+    score = 45;
+    
+    if (score >= 50) {
+        passed = 1;
+    } else {
+        failed = 1;
+    }
+}
+```
+
+### Execution Flow
+
+<Steps>
+
+<Step title="Assign score">
+`score = 45`
+</Step>
+
+<Step title="Evaluate condition">
+Check if `score >= 50`: `45 >= 50` = `false`
+</Step>
+
+<Step title="Execute else block">
+Since the condition is false, the else block executes: `failed = 1`
+
+Note: `passed` is never assigned because the if block didn't execute.
+</Step>
+
+</Steps>
+
+**Output:**
+```
+Asignación: score = 45
+Asignación: failed = 1
+```
+
+## Real Example from Entrada2.txt
+
+Here's an actual program from the Mi Compilador test suite:
+
+```javascript
+program {
+    int valorUno; 
+    int valorDos; 
+    int resultado;
+    int exito; 
+    int error;
+
+    valorUno = 5; 
+    valorDos = 10; 
+    resultado = valorUno + valorDos;
+
+    if (resultado > 10) {
+        exito = 1; 
+    } else {
+        error = 0; 
+    }
+}
+```
+
+### Step-by-Step Execution
+
+<Steps>
+
+<Step title="Initialize variables">
+First, all variables are declared (but not yet assigned).
+</Step>
+
+<Step title="Assign initial values">
+- `valorUno = 5`
+- `valorDos = 10`
+</Step>
+
+<Step title="Calculate result">
+`resultado = valorUno + valorDos`
+
+Evaluation: `5 + 10 = 15`
+
+Memory state: `{'valorUno': 5, 'valorDos': 10, 'resultado': 15}`
+</Step>
+
+<Step title="Evaluate condition">
+Check: `resultado > 10` → `15 > 10` → `true`
+</Step>
+
+<Step title="Execute if block">
+Since the condition is true, execute `exito = 1`
+
+The else block is skipped, so `error` is never assigned.
+</Step>
+
+</Steps>
+
+**Output:**
+```
+Asignación: valorUno = 5
+Asignación: valorDos = 10
+Asignación: resultado = 15
+Asignación: exito = 1
+```
+
+**Final Memory State:**
+```python
+{
+    'valorUno': 5,
+    'valorDos': 10,
+    'resultado': 15,
+    'exito': 1
+}
+```
+
+<Tip>
+Notice that `error` was declared but never assigned a value because the else block didn't execute.
+</Tip>
+
+## Using Arithmetic in Conditions
+
+You can use arithmetic expressions directly in conditions:
+
+```javascript
+program {
+    int x;
+    int y;
+    int status;
+    
+    x = 10;
+    y = 5;
+    
+    if (x + y > 12) {
+        status = 1;
+    } else {
+        status = 0;
+    }
+}
+```
+
+### Evaluation Process
+
+1. Assign `x = 10` and `y = 5`
+2. Evaluate condition:
+   - First compute: `x + y = 10 + 5 = 15`
+   - Then compare: `15 > 12 = true`
+3. Execute if block: `status = 1`
+
+**Output:**
+```
+Asignación: x = 10
+Asignación: y = 5
+Asignación: status = 1
+```
+
+## Comparing Variables
+
+You can compare variables directly:
+
+```javascript
+program {
+    int a;
+    int b;
+    int equal;
+    int notEqual;
+    
+    a = 15;
+    b = 15;
+    
+    if (a == b) {
+        equal = 1;
+    } else {
+        notEqual = 1;
+    }
+}
+```
+
+Since `a == b` evaluates to `15 == 15` which is `true`, the if block executes.
+
+**Output:**
+```
+Asignación: a = 15
+Asignación: b = 15
+Asignación: equal = 1
+```
+
+## All Relational Operators Example
+
+Here's a comprehensive example showing all operators:
+
+```javascript
+program {
+    int value;
+    int greaterThan;
+    int lessThan;
+    int equalTo;
+    int notEqual;
+    
+    value = 10;
+    
+    if (value > 5) {
+        greaterThan = 1;
+    }
+    
+    if (value < 20) {
+        lessThan = 1;
+    }
+    
+    if (value == 10) {
+        equalTo = 1;
+    }
+    
+    if (value != 0) {
+        notEqual = 1;
+    }
+}
+```
+
+### Results
+
+All four conditions are true:
+- `10 > 5` → true
+- `10 < 20` → true
+- `10 == 10` → true
+- `10 != 0` → true
+
+**Output:**
+```
+Asignación: value = 10
+Asignación: greaterThan = 1
+Asignación: lessThan = 1
+Asignación: equalTo = 1
+Asignación: notEqual = 1
+```
+
+## Real Example from Entrada1.txt
+
+This example combines arithmetic with conditionals:
+
+```javascript
+program {
+    int x;
+    int y;
+    int resultado;
+    int control;
+
+    x = 10;
+    y = 20;
+    
+    resultado = (x + y) * 2 / 5; 
+    
+    if (resultado > 5) {
+        control = 1;
+    } else {
+        control = 0;
+    }
+
+    resultado = resultado + x;
+}
+```
+
+### Complete Execution Trace
+
+<Steps>
+
+<Step title="Initial assignments">
+- `x = 10`
+- `y = 20`
+</Step>
+
+<Step title="Calculate resultado">
+`resultado = (x + y) * 2 / 5`
+
+1. `(10 + 20) = 30`
+2. `30 * 2 = 60`
+3. `60 / 5 = 12`
+
+Result: `resultado = 12`
+</Step>
+
+<Step title="Evaluate condition">
+`resultado > 5` → `12 > 5` → `true`
+</Step>
+
+<Step title="Execute if block">
+`control = 1`
+</Step>
+
+<Step title="Update resultado">
+`resultado = resultado + x`
+
+`resultado = 12 + 10 = 22`
+</Step>
+
+</Steps>
+
+**Output:**
+```
+Asignación: x = 10
+Asignación: y = 20
+Asignación: resultado = 12
+Asignación: control = 1
+Asignación: resultado = 22
+```
+
+**Final Memory State:**
+```python
+{
+    'x': 10,
+    'y': 20,
+    'resultado': 22,
+    'control': 1
+}
+```
+
+## Boolean Flags Pattern
+
+A common pattern is using integer variables as boolean flags (1 = true, 0 = false):
+
+```javascript
+program {
+    int temperature;
+    int isCold;
+    int isHot;
+    
+    temperature = 25;
+    
+    if (temperature < 15) {
+        isCold = 1;
+    } else {
+        isCold = 0;
+    }
+    
+    if (temperature > 30) {
+        isHot = 1;
+    } else {
+        isHot = 0;
+    }
+}
+```
+
+With `temperature = 25`:
+- `isCold = 0` (because 25 is not < 15)
+- `isHot = 0` (because 25 is not > 30)
+
+<Tip>
+**Best Practices:**
+- Use descriptive variable names for conditions (like `isValid`, `hasError`, `success`)
+- Use 1 for true and 0 for false to represent boolean values
+- Always consider both the if and else cases
+- Test your conditions with different values
+</Tip>
+
+## Common Patterns
+
+### Range Checking
+
+```javascript
+program {
+    int age;
+    int isAdult;
+    
+    age = 25;
+    
+    if (age >= 18) {
+        isAdult = 1;
+    } else {
+        isAdult = 0;
+    }
+}
+```
+
+### Validation
+
+```javascript
+program {
+    int quantity;
+    int valid;
+    int invalid;
+    
+    quantity = 5;
+    
+    if (quantity > 0) {
+        valid = 1;
+    } else {
+        invalid = 1;
+    }
+}
+```
+
+### Comparison
+
+```javascript
+program {
+    int expected;
+    int actual;
+    int matches;
+    
+    expected = 100;
+    actual = 95;
+    
+    if (expected == actual) {
+        matches = 1;
+    } else {
+        matches = 0;
+    }
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Basic Arithmetic" icon="calculator" href="/examples/basic-arithmetic">
+    Review arithmetic operations
+  </Card>
+  <Card title="Complex Programs" icon="diagram-project" href="/examples/complex-programs">
+    See complete programs with multiple features
+  </Card>
+</CardGroup>

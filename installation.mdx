@@ -1,0 +1,169 @@
+---
+title: Installation
+description: Learn how to install and set up Mi Compilador on your system
+---
+
+## Prerequisites
+
+Before installing Mi Compilador, ensure you have the following:
+
+<Steps>
+  <Step title="Python 3.x">
+    Mi Compilador requires Python 3.x or higher. Check your Python version:
+    
+    ```bash
+    python3 --version
+    ```
+    
+    If you don't have Python 3 installed, download it from [python.org](https://www.python.org/downloads/).
+  </Step>
+
+  <Step title="pip (Python Package Manager)">
+    Verify that pip is installed:
+    
+    ```bash
+    pip3 --version
+    ```
+  </Step>
+</Steps>
+
+## Installation Steps
+
+<Steps>
+  <Step title="Install ANTLR4 Python Runtime">
+    Mi Compilador uses ANTLR4 for lexical and syntactic analysis. Install the Python runtime:
+    
+    ```bash
+    pip3 install antlr4-python3-runtime
+    ```
+    
+    <Note>
+      The ANTLR4 Python runtime is essential for parsing and lexing the input programs.
+    </Note>
+  </Step>
+
+  <Step title="Clone the Repository">
+    Download Mi Compilador from the repository:
+    
+    ```bash
+    git clone <repository-url>
+    cd Mi_Compilador
+    ```
+    
+    Or if you received the source as a ZIP file, extract it:
+    
+    ```bash
+    unzip Mi_Compilador.zip
+    cd Mi_Compilador
+    ```
+  </Step>
+
+  <Step title="Verify the Installation">
+    Check that all required files are present:
+    
+    ```bash
+    ls -la
+    ```
+    
+    You should see the following key files:
+    - `Prueba.py` - Main compiler entry point
+    - `Visitor.py` - Visitor pattern implementation for AST traversal
+    - `Expresiones.g` - ANTLR4 grammar definition
+    - `ExpresionesLexer.py` - Generated lexer
+    - `ExpresionesParser.py` - Generated parser
+    - `ExpresionesVisitor.py` - Generated visitor interface
+    - `Entrada1.txt` and `Entrada2.txt` - Example programs
+  </Step>
+</Steps>
+
+## Regenerating the Parser (Optional)
+
+<Warning>
+  The parser files are already generated and included. You only need to regenerate them if you modify the grammar file `Expresiones.g`.
+</Warning>
+
+If you need to modify the grammar and regenerate the parser:
+
+<Steps>
+  <Step title="Install ANTLR4">
+    Download ANTLR4 complete JAR:
+    
+    ```bash
+    cd /usr/local/lib
+    sudo curl -O https://www.antlr.org/download/antlr-4.13.1-complete.jar
+    ```
+  </Step>
+
+  <Step title="Set up ANTLR4 alias">
+    Add to your `.bashrc` or `.zshrc`:
+    
+    ```bash
+    export CLASSPATH=".:/usr/local/lib/antlr-4.13.1-complete.jar:$CLASSPATH"
+    alias antlr4='java -jar /usr/local/lib/antlr-4.13.1-complete.jar'
+    ```
+    
+    Reload your shell configuration:
+    
+    ```bash
+    source ~/.bashrc
+    ```
+  </Step>
+
+  <Step title="Generate the parser">
+    Run ANTLR4 on the grammar file:
+    
+    ```bash
+    antlr4 -Dlanguage=Python3 -visitor Expresiones.g
+    ```
+    
+    This will generate:
+    - `ExpresionesLexer.py`
+    - `ExpresionesParser.py`
+    - `ExpresionesVisitor.py`
+    - Token files (`.tokens`, `.interp`)
+  </Step>
+</Steps>
+
+## Verify Installation
+
+Test that everything is set up correctly:
+
+```bash
+python3 Prueba.py Entrada1.txt
+```
+
+If successful, you should see output showing variable assignments and the final memory state.
+
+<Tip>
+  If you encounter import errors, ensure you're in the correct directory and that the ANTLR4 runtime is properly installed.
+</Tip>
+
+## Troubleshooting
+
+### ModuleNotFoundError: No module named 'antlr4'
+
+Install the ANTLR4 Python runtime:
+
+```bash
+pip3 install antlr4-python3-runtime
+```
+
+### Command 'python3' not found
+
+Try using `python` instead of `python3`, or install Python 3:
+
+```bash
+# On Ubuntu/Debian
+sudo apt-get install python3
+
+# On macOS with Homebrew
+brew install python3
+```
+
+### File not found errors
+
+Ensure you're running the compiler from the project directory where all the Python files are located.
+
+## Next Steps
+
+Now that you have Mi Compilador installed, proceed to the [Quickstart](/quickstart) guide to write and compile your first program.

@@ -1,0 +1,490 @@
+---
+title: 'Control Flow'
+description: 'Conditional statements and control structures in Mi Compilador'
+---
+
+# Control Flow
+
+Mi Compilador supports conditional execution through `if` statements with optional `else` clauses.
+
+## If Statements
+
+The `if` statement allows conditional execution based on a relational expression.
+
+### Basic Syntax
+
+```c
+if (condition) {
+    // Code to execute if condition is true
+}
+```
+
+### Grammar Definition
+
+```bnf
+instrucciones
+    : 'if' '(' exprRelacional ')' bloque ('else' bloque)?
+```
+
+An `if` statement consists of:
+1. The `if` keyword
+2. A condition in parentheses `( )`
+3. A code block `{ }`
+4. An optional `else` clause with its own code block
+
+### Simple If Example
+
+```c
+program {
+    int x;
+    int resultado;
+    
+    x = 10;
+    
+    if (x > 5) {
+        resultado = 1;
+    }
+}
+```
+
+<Note>
+The code inside the `if` block executes only when the condition evaluates to true.
+</Note>
+
+## Else Clauses
+
+The `else` clause provides an alternative path when the condition is false.
+
+### If-Else Syntax
+
+```c
+if (condition) {
+    // Code when condition is true
+} else {
+    // Code when condition is false
+}
+```
+
+### If-Else Example
+
+```c
+program {
+    int resultado;
+    int control;
+    
+    resultado = 12;
+    
+    if (resultado > 5) {
+        control = 1;  // Executes when true
+    } else {
+        control = 0;  // Executes when false
+    }
+}
+```
+
+<Tip>
+Exactly one of the two blocks will execute: either the `if` block or the `else` block, never both.
+</Tip>
+
+## Relational Expressions
+
+Conditions must be relational expressions that compare two arithmetic expressions.
+
+### Condition Grammar
+
+```bnf
+exprRelacional
+    : expr op=( '>' | '<' | '==' | '>=' | '<=' | '!=' ) expr
+```
+
+### Supported Operators
+
+| Operator | Meaning | Example |
+|----------|---------|----------|
+| `>` | Greater than | `x > 10` |
+| `<` | Less than | `x < 10` |
+| `==` | Equal to | `x == 10` |
+| `!=` | Not equal to | `x != 10` |
+| `>=` | Greater or equal | `x >= 10` |
+| `<=` | Less or equal | `x <= 10` |
+
+### Condition Examples
+
+```c
+program {
+    int x;
+    int y;
+    int flag;
+    
+    x = 10;
+    y = 5;
+    
+    // Greater than
+    if (x > y) {
+        flag = 1;  // Executes: 10 > 5
+    }
+    
+    // Less than
+    if (x < y) {
+        flag = 2;  // Doesn't execute: 10 < 5 is false
+    }
+    
+    // Equal to
+    if (x == 10) {
+        flag = 3;  // Executes: 10 == 10
+    }
+    
+    // Not equal to
+    if (x != y) {
+        flag = 4;  // Executes: 10 != 5
+    }
+}
+```
+
+## Expressions in Conditions
+
+Both sides of a relational operator can be full arithmetic expressions:
+
+```c
+program {
+    int x;
+    int y;
+    int resultado;
+    
+    x = 10;
+    y = 20;
+    
+    // Variable compared to literal
+    if (x > 5) {
+        resultado = 1;
+    }
+    
+    // Expression compared to literal
+    if (x + y > 25) {
+        resultado = 2;  // Executes: 30 > 25
+    }
+    
+    // Expression compared to expression
+    if (x * 2 < y + 5) {
+        resultado = 3;  // Executes: 20 < 25
+    }
+}
+```
+
+<Warning>
+Arithmetic expressions in conditions are evaluated **before** the comparison is made.
+</Warning>
+
+## Code Blocks
+
+Both `if` and `else` clauses use code blocks defined by curly braces.
+
+### Block Grammar
+
+```bnf
+bloque : '{' instrucciones* '}'
+```
+
+Blocks can contain:
+- Zero or more instructions
+- Variable declarations
+- Assignments
+- Nested `if` statements
+
+### Multiple Statements in Blocks
+
+```c
+program {
+    int x;
+    int y;
+    int resultado;
+    int status;
+    
+    x = 10;
+    y = 5;
+    
+    if (x > y) {
+        // Multiple statements in if block
+        resultado = x + y;
+        status = 1;
+        x = 0;
+    } else {
+        // Multiple statements in else block
+        resultado = 0;
+        status = 0;
+    }
+}
+```
+
+## Block Scoping
+
+Variables declared inside blocks follow scoping rules:
+
+```c
+program {
+    int x;
+    int resultado;
+    
+    x = 10;
+    
+    if (x > 5) {
+        // Variables from outer scope are accessible
+        int y;  // New variable in this block
+        y = 20;
+        resultado = x + y;
+    }
+}
+```
+
+<Note>
+All variables must be declared at the beginning of their respective blocks, following the program structure.
+</Note>
+
+## Complete Examples
+
+### Example 1: From Entrada1.txt
+
+```c
+program {
+    int x;
+    int y;
+    int resultado;
+    int control;
+    
+    x = 10;
+    y = 20;
+    
+    // Arithmetic and precedence
+    resultado = (x + y) * 2 / 5;  // resultado = 12
+    
+    // Conditional with relational operator
+    if (resultado > 5) {
+        control = 1;  // This block executes
+    } else {
+        control = 0;  // This block doesn't execute
+    }
+    
+    // Assignment using previous variables
+    resultado = resultado + x;  // resultado = 22
+}
+```
+
+**Execution trace:**
+1. `x = 10`, `y = 20`
+2. `resultado = (10 + 20) * 2 / 5 = 12`
+3. `12 > 5` is true
+4. `control = 1` executes
+5. `resultado = 12 + 10 = 22`
+
+### Example 2: From Entrada2.txt
+
+```c
+program {
+    int valorUno;
+    int valorDos;
+    int resultado;
+    int exito;
+    int error;
+    
+    valorUno = 5;
+    valorDos = 10;
+    resultado = valorUno + valorDos;  // resultado = 15
+    
+    if (resultado > 10) {
+        exito = 1;  // This block executes
+    } else {
+        error = 0;  // This block doesn't execute
+    }
+}
+```
+
+**Execution trace:**
+1. `valorUno = 5`, `valorDos = 10`
+2. `resultado = 5 + 10 = 15`
+3. `15 > 10` is true
+4. `exito = 1` executes
+5. `error` remains unassigned
+
+### Example 3: Complex Condition
+
+```c
+program {
+    int a;
+    int b;
+    int c;
+    int resultado;
+    
+    a = 8;
+    b = 3;
+    c = 2;
+    
+    // Complex arithmetic in condition
+    if (a + b * c > 10) {
+        // 8 + (3 * 2) = 14, and 14 > 10 is true
+        resultado = 1;
+    } else {
+        resultado = 0;
+    }
+    
+    // Using parentheses in condition
+    if ((a + b) * c == 22) {
+        // (8 + 3) * 2 = 22, and 22 == 22 is true
+        resultado = 2;
+    }
+}
+```
+
+### Example 4: Nested Declarations
+
+```c
+program {
+    int x;
+    int y;
+    int resultado;
+    
+    x = 15;
+    
+    if (x > 10) {
+        // Declare variable within if block
+        int temp;
+        temp = x * 2;
+        resultado = temp;
+    } else {
+        // Declare variable within else block
+        int temp;
+        temp = x / 2;
+        resultado = temp;
+    }
+}
+```
+
+## Control Flow Patterns
+
+### Pattern 1: Simple Flag Setting
+
+```c
+if (value > threshold) {
+    flag = 1;
+}
+```
+
+### Pattern 2: Binary Choice
+
+```c
+if (condition) {
+    result = option1;
+} else {
+    result = option2;
+}
+```
+
+### Pattern 3: Conditional Computation
+
+```c
+if (x > 0) {
+    resultado = x * 2;
+} else {
+    resultado = 0;
+}
+```
+
+### Pattern 4: Multiple Statements
+
+```c
+if (score > passingGrade) {
+    status = 1;
+    message = 100;  // Could represent a success code
+    count = count + 1;
+} else {
+    status = 0;
+    message = 200;  // Could represent a failure code
+}
+```
+
+## Best Practices
+
+<Tip>
+**Use meaningful variable names** in conditions to make the logic clear:
+```c
+if (score >= passingScore) {  // Clear intent
+    passed = 1;
+}
+```
+</Tip>
+
+<Tip>
+**Group related statements** in conditional blocks:
+```c
+if (validInput == 1) {
+    processData = 1;
+    errorCode = 0;
+    status = 1;
+}
+```
+</Tip>
+
+<Warning>
+**Always use blocks** even for single statements to maintain consistency:
+```c
+// Good
+if (x > 0) {
+    y = 1;
+}
+
+// Required - blocks are mandatory in Mi Compilador
+if (x > 0) {
+    y = 1;
+}
+```
+</Warning>
+
+## Limitations
+
+<Note>
+Mi Compilador currently does not support:
+- `else if` chains
+- Nested `if` statements
+- Logical operators (`&&`, `||`, `!`)
+- `while` or `for` loops
+- `switch` statements
+</Note>
+
+For complex conditions, use separate `if` statements:
+
+```c
+// Check multiple conditions separately
+if (x > 10) {
+    flag1 = 1;
+}
+
+if (y < 5) {
+    flag2 = 1;
+}
+
+// Use the flags to determine final result
+if (flag1 == 1) {
+    if (flag2 == 1) {
+        resultado = 1;
+    }
+}
+```
+
+## Summary
+
+| Feature | Syntax | Example |
+|---------|--------|----------|
+| **If statement** | `if (condition) { }` | `if (x > 5) { y = 1; }` |
+| **Else clause** | `else { }` | `else { y = 0; }` |
+| **Condition** | `expr op expr` | `x + 5 > y * 2` |
+| **Block** | `{ statements }` | `{ int x; x = 1; }` |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Operators" icon="calculator" href="/language/operators">
+    Learn about relational operators for conditions
+  </Card>
+  <Card title="Examples" icon="code" href="/examples/conditionals">
+    See complete program examples
+  </Card>
+</CardGroup>

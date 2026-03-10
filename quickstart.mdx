@@ -1,80 +1,211 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: 'Quickstart'
+description: 'Get started with Mi Compilador in under 5 minutes'
 ---
 
-## Get started in three steps
+Get your first program running with Mi Compilador and learn the basics of the language.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before you begin, ensure you have:
+- Python 3.x installed
+- ANTLR4 runtime for Python (`pip install antlr4-python3-runtime`)
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+## Run Your First Program
+
+<Steps>
+  <Step title="Navigate to the compiler directory">
+    Open your terminal and navigate to where Mi Compilador is located:
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    ```bash
+    cd path/to/mi-compilador
+    ```
+  </Step>
+
+  <Step title="Run the example program">
+    Mi Compilador comes with example programs. Let's run the first one:
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+    ```bash
+    python3 Prueba.py Entrada1.txt
+    ```
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    You should see output like this:
+    
+    ```
+    [OK] Archivo 'Entrada1.txt' cargado correctamente.
+    ------------------------------
+    Asignación: x = 10
+    Asignación: y = 20
+    Asignación: resultado = 12
+    Asignación: control = 1
+    Asignación: resultado = 22
+    ------------------------------
+    Ejecución finalizada con éxito.
+    Estado de la memoria: {'x': 10, 'y': 20, 'resultado': 22, 'control': 1}
+    ```
+  </Step>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+  <Step title="Understand what happened">
+    The compiler processed `Entrada1.txt` through three stages:
+    
+    1. **Lexical Analysis**: Tokenized the source code
+    2. **Syntax Parsing**: Built an Abstract Syntax Tree (AST)
+    3. **Execution**: Used the Visitor pattern to evaluate expressions and execute statements
+    
+    The program:
+    - Declared variables (`x`, `y`, `resultado`, `control`)
+    - Performed arithmetic: `(10 + 20) * 2 / 5 = 12`
+    - Evaluated a conditional: Since `12 > 5`, it set `control = 1`
+    - Updated the result: `12 + 10 = 22`
+  </Step>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+  <Step title="Try the second example">
+    Run another example to see conditional logic in action:
+    
+    ```bash
+    python3 Prueba.py Entrada2.txt
+    ```
+    
+    Expected output:
+    
+    ```
+    [OK] Archivo 'Entrada2.txt' cargado correctamente.
+    ------------------------------
+    Asignación: valorUno = 5
+    Asignación: valorDos = 10
+    Asignación: resultado = 15
+    Asignación: exito = 1
+    ------------------------------
+    Ejecución finalizada con éxito.
+    Estado de la memoria: {'valorUno': 5, 'valorDos': 10, 'resultado': 15, 'exito': 1}
+    ```
+    
+    This program adds two numbers and uses an `if` statement to check if the result exceeds 10.
+  </Step>
+</Steps>
 
-### Step 3: Go live
+## Create Your Own Program
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+Now let's write a simple custom program from scratch.
 
-## Next steps
+<Steps>
+  <Step title="Create a new file">
+    Create a file named `MiPrograma.txt`:
+    
+    ```bash
+    touch MiPrograma.txt
+    ```
+  </Step>
 
-Now that you have your docs running, explore these key features:
+  <Step title="Write your program">
+    Open `MiPrograma.txt` and add this code:
+    
+    ```
+    program {
+        int a;
+        int b;
+        int suma;
+        int mayor;
+        
+        a = 15;
+        b = 25;
+        suma = a + b;
+        
+        if (suma > 30) {
+            mayor = 1;
+        } else {
+            mayor = 0;
+        }
+    }
+    ```
+    
+    This program:
+    - Declares four integer variables
+    - Assigns values and calculates their sum
+    - Checks if the sum is greater than 30
+  </Step>
+
+  <Step title="Compile and run">
+    Execute your program:
+    
+    ```bash
+    python3 Prueba.py MiPrograma.txt
+    ```
+    
+    You should see:
+    
+    ```
+    [OK] Archivo 'MiPrograma.txt' cargado correctamente.
+    ------------------------------
+    Asignación: a = 15
+    Asignación: b = 25
+    Asignación: suma = 40
+    Asignación: mayor = 1
+    ------------------------------
+    Ejecución finalizada con éxito.
+    Estado de la memoria: {'a': 15, 'b': 25, 'suma': 40, 'mayor': 1}
+    ```
+  </Step>
+</Steps>
+
+## What You've Learned
+
+You now know how to:
+- Run the Mi Compilador with input files
+- Understand the compilation and execution process
+- Write basic programs with variables, arithmetic, and conditionals
+- Read the compiler's output and memory state
+
+## Next Steps
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Language Syntax" icon="code" href="/syntax">
+    Learn the complete syntax and language features
+  </Card>
+  
+  <Card title="Architecture" icon="diagram-project" href="/architecture">
+    Understand how the compiler works under the hood
+  </Card>
+  
+  <Card title="Examples" icon="lightbulb" href="/examples">
+    Explore more complex example programs
+  </Card>
+  
+  <Card title="API Reference" icon="book" href="/api-reference">
+    Deep dive into the Visitor pattern and APIs
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Error: python3 command not found">
+    Make sure Python 3 is installed. Try:
+    ```bash
+    python --version
+    ```
+    If it shows Python 3.x, use `python` instead of `python3`.
+  </Accordion>
+
+  <Accordion title="Error: No module named 'antlr4'">
+    Install the ANTLR4 Python runtime:
+    ```bash
+    pip install antlr4-python3-runtime
+    ```
+  </Accordion>
+
+  <Accordion title="Error: El archivo tiene errores gramaticales">
+    Check your program syntax:
+    - All statements must end with semicolons
+    - Variables must be declared before use
+    - The program must be wrapped in `program { ... }`
+  </Accordion>
+
+  <Accordion title="Error: Variable no definida">
+    Ensure you declare all variables with `int` before using them:
+    ```
+    int myVar;
+    myVar = 10;
+    ```
+  </Accordion>
+</AccordionGroup>

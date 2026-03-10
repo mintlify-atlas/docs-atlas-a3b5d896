@@ -1,0 +1,362 @@
+---
+title: "Extending the Grammar"
+description: "Learn how to modify the ANTLR grammar to add new language features"
+---
+
+## Overview
+
+The grammar file `Expresiones.g` defines the syntax of Mi Compilador using ANTLR4. This guide shows you how to extend it with new tokens, rules, and language constructs.
+
+## Understanding the Grammar Structure
+
+The current grammar consists of:
+
+- **Tokens**: Atomic elements like `NUM`, `ID`, `SUM`, `DIV`
+- **Parser Rules**: Structural rules like `root`, `instrucciones`, `expr`
+- **Labels**: Rule alternatives marked with `#` (e.g., `#Aritmetica`, `#InstrAsig`)
+
+```antlr Expresiones.g (current structure)
+grammar Expresiones;
+
+root : 'program' '{' instrucciones+ '}' EOF # Prog ;
+
+instrucciones
+    : declaracion ';'                       #InstrDecl
+    | asignacion ';'                        #InstrAsig
+    | 'if' '(' exprRelacional ')' bloque ('else' bloque)? #InstrIf
+    ;
+```
+
+## Adding New Tokens
+
+Tokens are defined at the bottom of the grammar file in UPPERCASE.
+
+<Steps>
+  <Step title="Define the token">
+    Add your token definition after the existing tokens:
+
+    ```antlr
+    // Existing tokens
+    SUM : '+' ;
+    RES : '-' ;
+    MUL : '*' ;
+    DIV : '/' ;
+    
+    // New tokens
+    MOD : '%' ;       // Modulo operator
+    AND : '&&' ;      // Logical AND
+    OR  : '||' ;      // Logical OR
+    ```
+  </Step>
+
+  <Step title="Use the token in parser rules">
+    Reference your new token in a parser rule:
+
+    ```antlr
+    expr: expr (MUL | DIV | MOD) expr    #Aritmetica
+        | expr (SUM | RES) expr          #Aritmetica
+        | NUM                            #Numero
+        | ID                             #Variable
+        | '(' expr ')'                   #Parentesis
+        ;
+    ```
+  </Step>
+
+  <Step title="Regenerate the parser">
+    Run the ANTLR4 command to regenerate lexer and parser:
+
+    ```bash
+    antlr4 -Dlanguage=Python3 -visitor Expresiones.g
+    ```
+
+    This generates:
+    - `ExpresionesLexer.py`
+    - `ExpresionesParser.py`
+    - `ExpresionesVisitor.py`
+  </Step>
+</Steps>
+
+<Warning>
+  Always regenerate the parser files after modifying the grammar. Old generated files will cause runtime errors.
+</Warning>
+
+## Adding New Grammar Rules
+
+### Example 1: Adding a While Loop
+
+<Steps>
+  <Step title="Add the instruction rule">
+    Modify the `instrucciones` rule to include while loops:
+
+    ```antlr
+    instrucciones
+        : declaracion ';'                       #InstrDecl
+        | asignacion ';'                        #InstrAsig
+        | 'if' '(' exprRelacional ')' bloque ('else' bloque)? #InstrIf
+        | 'while' '(' exprRelacional ')' bloque #InstrWhile
+        ;
+    ```
+  </Step>
+
+  <Step title="Regenerate the parser">
+    ```bash
+    antlr4 -Dlanguage=Python3 -visitor Expresiones.g
+    ```
+  </Step>
+
+  <Step title="Implement the visitor method">
+    See [Adding Features](/development/adding-features) for implementing `visitInstrWhile()`.
+  </Step>
+</Steps>
+
+### Example 2: Adding String Support
+
+<Steps>
+  <Step title="Define string token">
+    Add a token for string literals:
+
+    ```antlr
+    STRING : '"' (~["\r\n])* '"' ;
+    ```
+  </Step>
+
+  <Step title="Add string to expressions">
+    Modify the `expr` rule:
+
+    ```antlr
+    expr: expr (MUL | DIV) expr    #Aritmetica
+        | expr (SUM | RES) expr    #Aritmetica
+        | NUM                      #Numero
+        | STRING                   #Cadena
+        | ID                       #Variable
+        | '(' expr ')'             #Parentesis
+        ;
+    ```
+  </Step>
+
+  <Step title="Update declaration types">
+    Allow string variable declarations:
+
+    ```antlr
+    declaracion : tipo ID ;
+    tipo : 'int' | 'string' ;
+    ```
+  </Step>
+</Steps>
+
+### Example 3: Adding a Print Statement
+
+<Steps>
+  <Step title="Add print instruction">
+    ```antlr
+    instrucciones
+        : declaracion ';'                       #InstrDecl
+        | asignacion ';'                        #InstrAsig
+        | 'if' '(' exprRelacional ')' bloque ('else' bloque)? #InstrIf
+        | 'print' '(' expr ')' ';'             #InstrPrint
+        ;
+    ```
+  </Step>
+
+  <Step title="Regenerate and implement">
+    ```bash
+    antlr4 -Dlanguage=Python3 -visitor Expresiones.g
+    ```
+    
+    Then implement `visitInstrPrint()` in Visitor.py.
+  </Step>
+</Steps>
+
+## Adding New Operators
+
+### Comparison: Adding Modulo (%)
+
+**Before:**
+```antlr
+expr: expr (MUL | DIV) expr    #Aritmetica
+    | expr (SUM | RES) expr    #Aritmetica
+    | NUM                      #Numero
+    | ID                       #Variable
+    | '(' expr ')'             #Parentesis
+    ;
+
+MUL : '*' ;
+DIV : '/' ;
+```
+
+**After:**
+```antlr
+expr: expr (MUL | DIV | MOD) expr    #Aritmetica
+    | expr (SUM | RES) expr          #Aritmetica
+    | NUM                            #Numero
+    | ID                             #Variable
+    | '(' expr ')'                   #Parentesis
+    ;
+
+MUL : '*' ;
+DIV : '/' ;
+MOD : '%' ;  // New modulo operator
+```
+
+Then update `visitAritmetica()` in Visitor.py:
+
+```python
+def visitAritmetica(self, ctx):
+    izq = self.visit(ctx.expr(0))
+    der = self.visit(ctx.expr(1))
+    op = ctx.getChild(1).getText()
+    
+    if izq is None or der is None:
+        return 0
+
+    if op == '+': return izq + der
+    if op == '-': return izq - der
+    if op == '*': return izq * der
+    if op == '/': return izq // der
+    if op == '%': return izq % der  # New modulo operation
+    return 0
+```
+
+### Adding Logical Operators (&&, ||)
+
+<Steps>
+  <Step title="Define tokens">
+    ```antlr
+    AND : '&&' ;
+    OR  : '||' ;
+    NOT : '!' ;
+    ```
+  </Step>
+
+  <Step title="Create logical expression rule">
+    ```antlr
+    exprLogica
+        : exprLogica AND exprLogica         #LogicaAnd
+        | exprLogica OR exprLogica          #LogicaOr
+        | NOT exprLogica                    #LogicaNot
+        | exprRelacional                    #LogicaRelacional
+        | '(' exprLogica ')'                #LogicaParentesis
+        ;
+    ```
+  </Step>
+
+  <Step title="Update if statement">
+    ```antlr
+    instrucciones
+        : declaracion ';'                       #InstrDecl
+        | asignacion ';'                        #InstrAsig
+        | 'if' '(' exprLogica ')' bloque ('else' bloque)? #InstrIf
+        ;
+    ```
+  </Step>
+</Steps>
+
+## Best Practices for Grammar Design
+
+<Tip>
+  **Operator Precedence**: List operators in order of precedence. Higher precedence operators should appear first:
+  
+  ```antlr
+  expr: expr (MUL | DIV | MOD) expr    // Highest precedence
+      | expr (SUM | RES) expr          // Lower precedence
+      | NUM | ID | '(' expr ')'
+      ;
+  ```
+</Tip>
+
+### Rule Naming Conventions
+
+- **Parser rules**: Start with lowercase (e.g., `instrucciones`, `expr`)
+- **Tokens**: Use UPPERCASE (e.g., `NUM`, `ID`, `MUL`)
+- **Labels**: Use PascalCase with `#` (e.g., `#InstrAsig`, `#Aritmetica`)
+
+### Avoid Left Recursion Issues
+
+<Warning>
+  ANTLR4 handles direct left recursion but not indirect left recursion.
+  
+  **Bad (indirect left recursion):**
+  ```antlr
+  expr : term ;
+  term : expr '+' expr ;  // Indirect left recursion through term
+  ```
+  
+  **Good:**
+  ```antlr
+  expr : expr '+' expr | term ;
+  term : NUM | ID ;
+  ```
+</Warning>
+
+### Keep Rules Simple and Clear
+
+```antlr
+// Bad: Complex nested rule
+instrucciones : ('int' ID | 'string' ID) '=' expr ';' #Decl ;
+
+// Good: Separate concerns
+instrucciones : declaracion ';' #InstrDecl ;
+declaracion : tipo ID ('=' expr)? ;
+tipo : 'int' | 'string' ;
+```
+
+## Testing Grammar Changes
+
+<Steps>
+  <Step title="Create a test program">
+    Create a `.txt` file with test cases for your new feature:
+
+    ```text test_modulo.txt
+    program {
+        int a;
+        int b;
+        int resultado;
+        a = 10;
+        b = 3;
+        resultado = a % b;
+    }
+    ```
+  </Step>
+
+  <Step title="Regenerate the parser">
+    ```bash
+    antlr4 -Dlanguage=Python3 -visitor Expresiones.g
+    ```
+  </Step>
+
+  <Step title="Run the test">
+    ```bash
+    python3 Prueba.py test_modulo.txt
+    ```
+  </Step>
+
+  <Step title="Verify output">
+    Check that the program runs without syntax errors and produces correct results.
+  </Step>
+</Steps>
+
+## Common Pitfalls
+
+<Warning>
+  **Issue**: Parser doesn't recognize new token
+  
+  **Solution**: Make sure you defined the token in UPPERCASE and regenerated the parser files.
+</Warning>
+
+<Warning>
+  **Issue**: Visitor method not called
+  
+  **Solution**: Check that you added a label (e.g., `#InstrPrint`) to your grammar rule. Only labeled alternatives generate visitor methods.
+</Warning>
+
+<Warning>
+  **Issue**: Syntax errors with existing programs
+  
+  **Solution**: Your grammar changes may have broken backward compatibility. Review operator precedence and rule order.
+</Warning>
+
+## Next Steps
+
+- [Adding Features](/development/adding-features) - Implement visitor methods for new grammar rules
+- [Testing](/development/testing) - Create comprehensive tests for your grammar changes
+- [Grammar Architecture](/architecture/grammar) - Understand how grammar, lexer, and parser interact

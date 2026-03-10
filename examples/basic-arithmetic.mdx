@@ -1,0 +1,324 @@
+---
+title: 'Basic Arithmetic Operations'
+description: 'Learn how to perform arithmetic calculations in Mi Compilador'
+icon: 'calculator'
+---
+
+## Overview
+
+Mi Compilador supports standard arithmetic operations with proper operator precedence. This guide shows you how to perform calculations, use variables, and understand how expressions are evaluated.
+
+## Supported Operators
+
+| Operator | Description | Example | Result |
+|----------|-------------|---------|--------|
+| `+` | Addition | `5 + 3` | `8` |
+| `-` | Subtraction | `10 - 4` | `6` |
+| `*` | Multiplication | `6 * 7` | `42` |
+| `/` | Integer Division | `15 / 4` | `3` |
+
+<Tip>
+Division in Mi Compilador uses **integer division** (`//` in Python). The result is always rounded down to the nearest integer.
+</Tip>
+
+## Simple Arithmetic Example
+
+Here's a basic program that performs simple calculations:
+
+```javascript
+program {
+    int a;
+    int b;
+    int sum;
+    int difference;
+    
+    a = 15;
+    b = 7;
+    
+    sum = a + b;
+    difference = a - b;
+}
+```
+
+### Execution Output
+
+```
+Asignación: a = 15
+Asignación: b = 7
+Asignación: sum = 22
+Asignación: difference = 8
+```
+
+### Memory State
+
+After execution, the memory contains:
+
+```python
+{
+    'a': 15,
+    'b': 7,
+    'sum': 22,
+    'difference': 8
+}
+```
+
+## Operator Precedence
+
+Mi Compilador follows standard mathematical operator precedence:
+
+1. **Parentheses** `( )` - Highest priority
+2. **Multiplication and Division** `*` `/` - Middle priority
+3. **Addition and Subtraction** `+` `-` - Lowest priority
+
+### Example: Understanding Precedence
+
+```javascript
+program {
+    int result;
+    
+    result = 5 + 3 * 2;
+}
+```
+
+<Steps>
+
+<Step title="Multiply first">
+The expression `3 * 2` is evaluated first due to operator precedence, resulting in `6`.
+</Step>
+
+<Step title="Add next">
+Then `5 + 6` is computed, giving the final result of `11`.
+</Step>
+
+<Step title="Store result">
+The value `11` is stored in the variable `result`.
+</Step>
+
+</Steps>
+
+**Output:**
+```
+Asignación: result = 11
+```
+
+## Using Parentheses for Grouping
+
+Parentheses override the default precedence and force certain operations to execute first:
+
+```javascript
+program {
+    int x;
+    int y;
+    int withoutParens;
+    int withParens;
+    
+    x = 10;
+    y = 20;
+    
+    withoutParens = x + y * 2;
+    withParens = (x + y) * 2;
+}
+```
+
+### Step-by-Step Execution
+
+<Steps>
+
+<Step title="Initialize variables">
+- `x = 10`
+- `y = 20`
+</Step>
+
+<Step title="Calculate without parentheses">
+`withoutParens = x + y * 2`
+
+1. First: `y * 2 = 20 * 2 = 40`
+2. Then: `x + 40 = 10 + 40 = 50`
+3. Result: `withoutParens = 50`
+</Step>
+
+<Step title="Calculate with parentheses">
+`withParens = (x + y) * 2`
+
+1. First: `(x + y) = (10 + 20) = 30` (parentheses force this first)
+2. Then: `30 * 2 = 60`
+3. Result: `withParens = 60`
+</Step>
+
+</Steps>
+
+**Output:**
+```
+Asignación: x = 10
+Asignación: y = 20
+Asignación: withoutParens = 50
+Asignación: withParens = 60
+```
+
+## Complex Arithmetic Expression
+
+Here's a more complex example showing multiple operations:
+
+```javascript
+program {
+    int x;
+    int y;
+    int resultado;
+    
+    x = 10;
+    y = 20;
+    
+    resultado = (x + y) * 2 / 5;
+}
+```
+
+### Evaluation Process
+
+<Steps>
+
+<Step title="Assign initial values">
+- `x = 10`
+- `y = 20`
+</Step>
+
+<Step title="Evaluate parentheses first">
+`(x + y) = (10 + 20) = 30`
+</Step>
+
+<Step title="Multiply next">
+`30 * 2 = 60`
+</Step>
+
+<Step title="Divide last">
+`60 / 5 = 12` (integer division)
+</Step>
+
+<Step title="Store result">
+`resultado = 12`
+</Step>
+
+</Steps>
+
+**Output:**
+```
+Asignación: x = 10
+Asignación: y = 20
+Asignación: resultado = 12
+```
+
+## Variable Reuse
+
+You can use variables in expressions and reassign them:
+
+```javascript
+program {
+    int counter;
+    
+    counter = 5;
+    counter = counter + 10;
+    counter = counter * 2;
+}
+```
+
+### Execution Trace
+
+1. `counter = 5` → Memory: `{'counter': 5}`
+2. `counter = counter + 10` → `counter = 5 + 10 = 15` → Memory: `{'counter': 15}`
+3. `counter = counter * 2` → `counter = 15 * 2 = 30` → Memory: `{'counter': 30}`
+
+**Output:**
+```
+Asignación: counter = 5
+Asignación: counter = 15
+Asignación: counter = 30
+```
+
+## Complete Example: Multiple Variables
+
+```javascript
+program {
+    int price;
+    int quantity;
+    int subtotal;
+    int tax;
+    int total;
+    
+    price = 100;
+    quantity = 3;
+    
+    subtotal = price * quantity;
+    tax = subtotal / 10;
+    total = subtotal + tax;
+}
+```
+
+### Final Memory State
+
+```python
+{
+    'price': 100,
+    'quantity': 3,
+    'subtotal': 300,
+    'tax': 30,
+    'total': 330
+}
+```
+
+**Output:**
+```
+Asignación: price = 100
+Asignación: quantity = 3
+Asignación: subtotal = 300
+Asignación: tax = 30
+Asignación: total = 330
+```
+
+<Tip>
+**Best Practices:**
+- Use descriptive variable names
+- Use parentheses to make complex expressions clearer
+- Break complex calculations into smaller steps for readability
+- Remember that division is integer division (rounds down)
+</Tip>
+
+## Common Pitfalls
+
+### Integer Division Behavior
+
+Remember that division always produces integers:
+
+```javascript
+program {
+    int result;
+    
+    result = 7 / 2;  // Result is 3, not 3.5
+}
+```
+
+The result is `3` because `7 / 2 = 3.5` is rounded down to `3`.
+
+### Using Undefined Variables
+
+If you use a variable before assigning it, you'll get an error:
+
+```javascript
+program {
+    int x;
+    int y;
+    
+    y = x + 5;  // Error: x has no value yet!
+}
+```
+
+Always assign values to variables before using them in expressions.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Conditionals" icon="code-branch" href="/examples/conditionals">
+    Learn how to use if-else statements
+  </Card>
+  <Card title="Complex Programs" icon="diagram-project" href="/examples/complex-programs">
+    See complete programs combining multiple features
+  </Card>
+</CardGroup>

@@ -1,0 +1,254 @@
+---
+title: 'Data Types'
+description: 'Understanding the type system in Mi Compilador'
+---
+
+# Data Types
+
+Mi Compilador currently supports a single primitive data type for simplicity and clarity.
+
+## Integer Type
+
+The `int` keyword declares integer variables:
+
+```c
+int x;
+int resultado;
+int valorUno;
+```
+
+<Note>
+All variables in Mi Compilador must be explicitly declared before use.
+</Note>
+
+### Declaration Syntax
+
+```bnf
+declaracion : 'int' ID
+```
+
+A declaration consists of:
+1. The `int` keyword
+2. A valid identifier (see below)
+3. A semicolon `;`
+
+## Variable Identifiers
+
+Identifiers are names given to variables and must follow these rules:
+
+### Naming Rules
+
+<Warning>
+Identifiers must start with a letter (a-z, A-Z) and can be followed by letters or digits (0-9).
+</Warning>
+
+**Valid identifiers:**
+```c
+int x;           // Single letter
+int valorUno;    // Camel case
+int resultado;   // All lowercase
+int x1;          // Letter followed by digit
+int myVar2;      // Mixed case with digit
+```
+
+**Invalid identifiers:**
+```c
+int 1x;          // Cannot start with digit
+int my-var;      // Hyphens not allowed
+int my_var;      // Underscores not allowed
+int 123;         // Cannot be only digits
+```
+
+### Identifier Grammar
+
+```bnf
+ID : [a-zA-Z][a-zA-Z0-9]*
+```
+
+This pattern means:
+- First character: any letter (uppercase or lowercase)
+- Subsequent characters: any letter or digit (zero or more)
+
+## Number Literals
+
+Integer literals are sequences of digits:
+
+```c
+x = 10;          // Two-digit number
+y = 5;           // Single digit
+z = 1234;        // Multi-digit number
+```
+
+### Number Grammar
+
+```bnf
+NUM : [0-9]+
+```
+
+Numbers must:
+- Contain only digits (0-9)
+- Have at least one digit
+- Be positive (no negative number literals)
+
+<Tip>
+To represent negative numbers, use the subtraction operator: `x = 0 - 5;`
+</Tip>
+
+## Variable Declaration and Initialization
+
+Variables must be declared before they can be used:
+
+```c
+program {
+    // Step 1: Declare variables
+    int x;
+    int y;
+    int resultado;
+    
+    // Step 2: Initialize with values
+    x = 10;
+    y = 20;
+    
+    // Step 3: Use in expressions
+    resultado = x + y;
+}
+```
+
+<Warning>
+Declaration and assignment are separate operations. You cannot initialize a variable during declaration like `int x = 10;`
+</Warning>
+
+### Correct Pattern
+
+```c
+int x;       // Declaration
+x = 10;      // Assignment (initialization)
+```
+
+### Incorrect Pattern
+
+```c
+int x = 10;  // Error: Combined declaration/initialization not supported
+```
+
+## Memory and Storage
+
+When you declare a variable:
+
+1. **Memory is allocated** for the variable
+2. **The identifier is registered** in the symbol table
+3. **The variable can be assigned** values
+4. **The variable can be used** in expressions
+
+```c
+program {
+    int control;     // Memory allocated for 'control'
+    
+    control = 1;     // Value 1 stored in 'control'
+    
+    int x;
+    x = control;     // Value of 'control' read and assigned to 'x'
+}
+```
+
+## Type System Characteristics
+
+### Statically Typed
+
+Variables have a fixed type that cannot change:
+
+```c
+int x;       // x is an integer
+x = 10;      // OK: assigning integer value
+```
+
+### Explicitly Typed
+
+All variables must have an explicit type declaration:
+
+```c
+int resultado;   // Type must be specified
+```
+
+### Single Type
+
+Currently, only integers are supported:
+
+```c
+int x;           // OK: Integer type
+float y;         // Error: float not supported
+string name;     // Error: string not supported
+bool flag;       // Error: bool not supported
+```
+
+## Complete Examples
+
+### Example 1: Basic Variable Usage
+
+```c
+program {
+    int x;
+    int y;
+    int resultado;
+    
+    x = 10;
+    y = 20;
+    resultado = x + y;  // resultado = 30
+}
+```
+
+### Example 2: Multiple Variables
+
+```c
+program {
+    int valorUno;
+    int valorDos;
+    int resultado;
+    int exito;
+    int error;
+    
+    valorUno = 5;
+    valorDos = 10;
+    resultado = valorUno + valorDos;  // resultado = 15
+    
+    if (resultado > 10) {
+        exito = 1;
+    } else {
+        error = 0;
+    }
+}
+```
+
+### Example 3: Variable Reuse
+
+```c
+program {
+    int x;
+    int resultado;
+    
+    x = 10;
+    resultado = x * 2;       // resultado = 20
+    resultado = resultado + x; // resultado = 30
+}
+```
+
+## Type Summary
+
+| Feature | Description | Example |
+|---------|-------------|----------|
+| **Type keyword** | `int` | `int x;` |
+| **Identifier pattern** | Letter followed by letters/digits | `x`, `valor1`, `myVar` |
+| **Number literals** | One or more digits | `0`, `10`, `1234` |
+| **Declaration** | Type + identifier + semicolon | `int resultado;` |
+| **Assignment** | Identifier + `=` + expression | `x = 10;` |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Operators" icon="calculator" href="/language/operators">
+    Learn about arithmetic and relational operators
+  </Card>
+  <Card title="Control Flow" icon="code-branch" href="/language/control-flow">
+    Explore conditional statements
+  </Card>
+</CardGroup>

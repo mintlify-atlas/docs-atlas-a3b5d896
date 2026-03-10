@@ -1,0 +1,563 @@
+---
+title: 'Complex Programs'
+description: 'Complete examples combining multiple language features'
+icon: 'diagram-project'
+---
+
+## Overview
+
+This guide shows complete, real-world-style programs that combine arithmetic operations, variables, and conditional statements. These examples demonstrate how different features work together in Mi Compilador.
+
+## Complete Program: Entrada1.txt
+
+This is a real test program from the Mi Compilador source that demonstrates multiple features:
+
+```javascript
+program {
+    int x;
+    int y;
+    int resultado;
+    int control;
+
+    x = 10;
+    y = 20;
+    
+    // Arithmetic with precedence
+    resultado = (x + y) * 2 / 5; 
+    
+    // Conditional with relational operator
+    if (resultado > 5) {
+        control = 1;
+    } else {
+        control = 0;
+    }
+
+    // Variable reuse in assignment
+    resultado = resultado + x;
+}
+```
+
+### Complete Execution Walkthrough
+
+Let's trace this program line by line:
+
+<Steps>
+
+<Step title="Variable declarations (lines 3-6)">
+Four integer variables are declared:
+- `x` - will store first operand
+- `y` - will store second operand  
+- `resultado` - will store calculation results
+- `control` - will store conditional outcome
+
+Memory state: `{}` (variables declared but not yet assigned)
+</Step>
+
+<Step title="Initialize x and y (lines 8-9)">
+```javascript
+x = 10;
+y = 20;
+```
+
+Memory state: `{'x': 10, 'y': 20}`
+
+**Output:**
+```
+Asignación: x = 10
+Asignación: y = 20
+```
+</Step>
+
+<Step title="Complex arithmetic expression (line 12)">
+```javascript
+resultado = (x + y) * 2 / 5;
+```
+
+Evaluation order:
+1. Parentheses first: `(x + y) = (10 + 20) = 30`
+2. Left to right for same precedence: `30 * 2 = 60`
+3. Then division: `60 / 5 = 12`
+
+Memory state: `{'x': 10, 'y': 20, 'resultado': 12}`
+
+**Output:**
+```
+Asignación: resultado = 12
+```
+</Step>
+
+<Step title="Evaluate conditional (line 15)">
+```javascript
+if (resultado > 5) {
+```
+
+Check condition: `resultado > 5` → `12 > 5` → `true`
+
+Since true, the if block will execute.
+</Step>
+
+<Step title="Execute if block (line 16)">
+```javascript
+control = 1;
+```
+
+The condition was true, so `control` is set to 1.
+
+Memory state: `{'x': 10, 'y': 20, 'resultado': 12, 'control': 1}`
+
+**Output:**
+```
+Asignación: control = 1
+```
+
+The else block (line 18) is skipped.
+</Step>
+
+<Step title="Variable reuse (line 22)">
+```javascript
+resultado = resultado + x;
+```
+
+Evaluation:
+- Current value of `resultado`: 12
+- Current value of `x`: 10
+- New value: `12 + 10 = 22`
+
+Memory state: `{'x': 10, 'y': 20, 'resultado': 22, 'control': 1}`
+
+**Output:**
+```
+Asignación: resultado = 22
+```
+</Step>
+
+</Steps>
+
+### Complete Output
+
+```
+Asignación: x = 10
+Asignación: y = 20
+Asignación: resultado = 12
+Asignación: control = 1
+Asignación: resultado = 22
+```
+
+### Final Memory State
+
+```python
+{
+    'x': 10,
+    'y': 20,
+    'resultado': 22,
+    'control': 1
+}
+```
+
+<Tip>
+**Key Observations:**
+- Variables can be reused: `resultado` is assigned twice
+- Operator precedence is respected: parentheses, then *, /, then +, -
+- Conditionals branch execution: only one of if/else executes
+- Memory persists: values are kept throughout program execution
+</Tip>
+
+## Program 2: Input Validation and Processing
+
+This is the actual Entrada2.txt test program:
+
+```javascript
+program {
+    int valorUno; 
+    int valorDos; 
+    int resultado;
+    int exito; 
+    int error;
+
+    valorUno = 5; 
+    valorDos = 10; 
+    resultado = valorUno + valorDos;
+
+    if (resultado > 10) {
+        exito = 1; 
+    } else {
+        error = 0; 
+    }
+}
+```
+
+### Program Analysis
+
+**Purpose:** Add two values and check if the result exceeds a threshold.
+
+### Execution Trace
+
+<Steps>
+
+<Step title="Declaration phase">
+Five variables are declared:
+- `valorUno`, `valorDos` - input values
+- `resultado` - computed sum
+- `exito`, `error` - status flags
+</Step>
+
+<Step title="Input values">
+```javascript
+valorUno = 5; 
+valorDos = 10;
+```
+
+Memory: `{'valorUno': 5, 'valorDos': 10}`
+</Step>
+
+<Step title="Compute result">
+```javascript
+resultado = valorUno + valorDos;
+```
+
+Evaluation: `5 + 10 = 15`
+
+Memory: `{'valorUno': 5, 'valorDos': 10, 'resultado': 15}`
+</Step>
+
+<Step title="Validation check">
+```javascript
+if (resultado > 10) {
+```
+
+Check: `15 > 10` → `true`
+
+The if block executes, else block is skipped.
+</Step>
+
+<Step title="Set success flag">
+```javascript
+exito = 1;
+```
+
+Final memory: `{'valorUno': 5, 'valorDos': 10, 'resultado': 15, 'exito': 1}`
+
+Note: `error` is never assigned because the else branch didn't execute.
+</Step>
+
+</Steps>
+
+### Complete Output
+
+```
+Asignación: valorUno = 5
+Asignación: valorDos = 10
+Asignación: resultado = 15
+Asignación: exito = 1
+```
+
+## Program 3: Calculator with Range Validation
+
+A more complex example showing multiple conditional checks:
+
+```javascript
+program {
+    int operandA;
+    int operandB;
+    int operation;
+    int result;
+    int isValid;
+    int isInvalid;
+
+    operandA = 100;
+    operandB = 25;
+    operation = 1;
+
+    // Perform operation based on type
+    if (operation == 1) {
+        result = operandA + operandB;
+    } else {
+        result = operandA - operandB;
+    }
+
+    // Validate result is in acceptable range
+    if (result > 0) {
+        if (result < 200) {
+            isValid = 1;
+        } else {
+            isInvalid = 1;
+        }
+    } else {
+        isInvalid = 1;
+    }
+}
+```
+
+### Execution Flow
+
+<Steps>
+
+<Step title="Initialize operands">
+- `operandA = 100`
+- `operandB = 25`
+- `operation = 1` (represents addition)
+</Step>
+
+<Step title="Choose operation">
+Check `operation == 1`: `true`
+
+Execute: `result = operandA + operandB = 100 + 25 = 125`
+</Step>
+
+<Step title="First validation">
+Check `result > 0`: `125 > 0` = `true`
+
+Proceed to nested check.
+</Step>
+
+<Step title="Range validation">
+Check `result < 200`: `125 < 200` = `true`
+
+Execute: `isValid = 1`
+</Step>
+
+</Steps>
+
+### Output
+
+```
+Asignación: operandA = 100
+Asignación: operandB = 25
+Asignación: operation = 1
+Asignación: result = 125
+Asignación: isValid = 1
+```
+
+**Final Memory:**
+```python
+{
+    'operandA': 100,
+    'operandB': 25,
+    'operation': 1,
+    'result': 125,
+    'isValid': 1
+}
+```
+
+## Program 4: Multi-Step Calculation
+
+A program demonstrating sequential calculations:
+
+```javascript
+program {
+    int base;
+    int height;
+    int width;
+    int area;
+    int volume;
+    int isLarge;
+
+    base = 10;
+    height = 5;
+    width = 8;
+
+    // Calculate area
+    area = base * height;
+
+    // Calculate volume  
+    volume = area * width;
+
+    // Check if volume is large
+    if (volume > 300) {
+        isLarge = 1;
+    } else {
+        isLarge = 0;
+    }
+}
+```
+
+### Step-by-Step Execution
+
+1. **Initialize dimensions:**
+   - `base = 10`
+   - `height = 5`
+   - `width = 8`
+
+2. **Calculate area:**
+   - `area = base * height = 10 * 5 = 50`
+
+3. **Calculate volume:**
+   - `volume = area * width = 50 * 8 = 400`
+
+4. **Size check:**
+   - `volume > 300` → `400 > 300` → `true`
+   - `isLarge = 1`
+
+### Output
+
+```
+Asignación: base = 10
+Asignación: height = 5
+Asignación: width = 8
+Asignación: area = 50
+Asignación: volume = 400
+Asignación: isLarge = 1
+```
+
+## Program 5: Temperature Converter with Validation
+
+```javascript
+program {
+    int celsius;
+    int fahrenheit;
+    int isFreezing;
+    int isBoiling;
+    int inRange;
+
+    celsius = 0;
+
+    // Convert Celsius to Fahrenheit: F = (C * 9/5) + 32
+    // Simplified to: F = (C * 9) / 5 + 32
+    fahrenheit = celsius * 9 / 5 + 32;
+
+    // Check for freezing point
+    if (celsius == 0) {
+        isFreezing = 1;
+    } else {
+        isFreezing = 0;
+    }
+
+    // Check for boiling point
+    if (celsius == 100) {
+        isBoiling = 1;
+    } else {
+        isBoiling = 0;
+    }
+
+    // Check if temperature is in normal range (-20 to 50)
+    if (celsius >= 0) {
+        if (celsius <= 50) {
+            inRange = 1;
+        } else {
+            inRange = 0;
+        }
+    } else {
+        inRange = 0;
+    }
+}
+```
+
+### Execution with celsius = 0
+
+1. `celsius = 0`
+2. `fahrenheit = 0 * 9 / 5 + 32 = 0 / 5 + 32 = 0 + 32 = 32`
+3. `celsius == 0` → true → `isFreezing = 1`
+4. `celsius == 100` → false → `isBoiling = 0`
+5. `celsius >= 0` → true, then `celsius <= 50` → true → `inRange = 1`
+
+**Output:**
+```
+Asignación: celsius = 0
+Asignación: fahrenheit = 32
+Asignación: isFreezing = 1
+Asignación: isBoiling = 0
+Asignación: inRange = 1
+```
+
+## Tips for Writing Complex Programs
+
+<CardGroup cols={2}>
+  <Card title="Plan Your Variables" icon="list-check">
+    Declare all variables at the start. Think about what data you need to store.
+  </Card>
+  <Card title="Break Down Operations" icon="scissors">
+    Split complex calculations into multiple steps. Store intermediate results.
+  </Card>
+  <Card title="Use Descriptive Names" icon="tag">
+    Variable names like `resultado`, `control`, `exito` clearly show their purpose.
+  </Card>
+  <Card title="Test Conditions" icon="flask">
+    Think through both branches of if-else statements. What happens in each case?
+  </Card>
+</CardGroup>
+
+<Tip>
+**Memory Management:**
+- Variables persist throughout program execution
+- Reassigning a variable overwrites its previous value
+- Unassigned variables in unused branches remain uninitialized
+- All variables must be declared before use
+</Tip>
+
+## Common Patterns in Complex Programs
+
+### 1. Calculate-then-Validate
+
+```javascript
+// Calculate first
+result = (a + b) * c;
+
+// Then validate
+if (result > threshold) {
+    valid = 1;
+} else {
+    valid = 0;
+}
+```
+
+### 2. Sequential Processing
+
+```javascript
+// Step 1: Get input
+input = 10;
+
+// Step 2: Process
+processed = input * 2;
+
+// Step 3: Transform
+output = processed + offset;
+```
+
+### 3. Status Flags
+
+```javascript
+// Use integer flags to track multiple conditions
+if (condition1) {
+    flag1 = 1;
+}
+
+if (condition2) {
+    flag2 = 1;
+}
+```
+
+### 4. Progressive Calculation
+
+```javascript
+// Build up result step by step
+total = base;
+total = total + adjustment1;
+total = total + adjustment2;
+```
+
+## Debugging Complex Programs
+
+When your program doesn't work as expected:
+
+1. **Check operator precedence:** Use parentheses to make order explicit
+2. **Verify conditions:** Print or trace which branch executes
+3. **Track memory state:** Know what value each variable holds at each step
+4. **Test edge cases:** Try boundary values (0, negative numbers, equal values)
+5. **Read the output:** Assignment messages show the execution order
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Language Reference" icon="book" href="/language/syntax">
+    Complete syntax reference
+  </Card>
+  <Card title="Operators" icon="calculator" href="/language/operators">
+    Detailed operator documentation
+  </Card>
+  <Card title="Basic Arithmetic" icon="plus" href="/examples/basic-arithmetic">
+    Review arithmetic fundamentals
+  </Card>
+  <Card title="Conditionals" icon="code-branch" href="/examples/conditionals">
+    Review if-else statements
+  </Card>
+</CardGroup>

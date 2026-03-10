@@ -1,0 +1,195 @@
+---
+title: 'Syntax'
+description: 'Learn the fundamental syntax and structure of Mi Compilador programs'
+---
+
+# Language Syntax
+
+Mi Compilador uses a C-style syntax with explicit program boundaries and structured code blocks.
+
+## Program Structure
+
+Every Mi Compilador program must be enclosed in a `program` block:
+
+```c
+program {
+    // Your code here
+}
+```
+
+<Note>
+The `program` keyword and its surrounding braces `{ }` are **required** for every Mi Compilador source file.
+</Note>
+
+### Grammar Definition
+
+The program structure is defined in the grammar as:
+
+```bnf
+root : 'program' '{' instrucciones+ '}' EOF
+```
+
+This means:
+- Programs start with the `program` keyword
+- Followed by an opening brace `{`
+- Contains one or more instructions
+- Ends with a closing brace `}`
+
+## Statement Types
+
+Mi Compilador supports three types of statements:
+
+### 1. Variable Declarations
+
+Declare variables with a type followed by an identifier:
+
+```c
+int x;
+int resultado;
+int valorUno;
+```
+
+### 2. Assignments
+
+Assign values to variables using the `=` operator:
+
+```c
+x = 10;
+resultado = (x + y) * 2;
+valorUno = 5;
+```
+
+### 3. Conditional Statements
+
+Control program flow with `if` and optional `else`:
+
+```c
+if (x > 5) {
+    y = 1;
+} else {
+    y = 0;
+}
+```
+
+## Statement Terminators
+
+<Warning>
+Declarations and assignments **must** end with a semicolon `;`
+</Warning>
+
+```c
+int x;           // Declaration - semicolon required
+x = 10;          // Assignment - semicolon required
+
+if (x > 5) {     // Conditional - no semicolon
+    y = 1;       // Statements inside - semicolons required
+}
+```
+
+### Grammar Rules
+
+```bnf
+instrucciones
+    : declaracion ';'                                    # Declaration
+    | asignacion ';'                                     # Assignment
+    | 'if' '(' exprRelacional ')' bloque ('else' bloque)? # Conditional
+```
+
+## Code Blocks
+
+Code blocks group multiple statements together using curly braces:
+
+```c
+program {
+    int x;
+    int y;
+    
+    if (x > 0) {
+        // This is a code block
+        y = x + 1;
+        x = y * 2;
+    }
+}
+```
+
+### Block Grammar
+
+```bnf
+bloque : '{' instrucciones* '}'
+```
+
+Blocks can contain zero or more instructions.
+
+## Comments
+
+Use `//` for single-line comments:
+
+```c
+program {
+    // This is a comment
+    int x;  // Comments can also appear at the end of lines
+    
+    // Comments are ignored by the compiler
+    x = 10;
+}
+```
+
+<Tip>
+Comments extend from `//` to the end of the line and are automatically skipped during compilation.
+</Tip>
+
+### Comment Grammar
+
+```bnf
+COMENTARIO : '//' ~[\n\r]* -> skip
+```
+
+## Complete Example
+
+Here's a complete program demonstrating all syntax elements:
+
+```c
+program {
+    // Variable declarations
+    int x;
+    int y;
+    int resultado;
+    
+    // Assignments
+    x = 10;
+    y = 20;
+    
+    // Arithmetic with precedence
+    resultado = (x + y) * 2 / 5;
+    
+    // Conditional with code blocks
+    if (resultado > 5) {
+        x = 1;
+    } else {
+        x = 0;
+    }
+}
+```
+
+## Syntax Summary
+
+| Element | Syntax | Example |
+|---------|--------|----------|
+| Program | `program { ... }` | `program { int x; }` |
+| Declaration | `type identifier;` | `int x;` |
+| Assignment | `identifier = expression;` | `x = 10;` |
+| If statement | `if (condition) { ... }` | `if (x > 0) { y = 1; }` |
+| Else clause | `else { ... }` | `else { y = 0; }` |
+| Comment | `// text` | `// This is a comment` |
+| Code block | `{ ... }` | `{ int x; x = 1; }` |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Data Types" icon="database" href="/language/data-types">
+    Learn about Mi Compilador's type system
+  </Card>
+  <Card title="Operators" icon="calculator" href="/language/operators">
+    Explore arithmetic and relational operators
+  </Card>
+</CardGroup>

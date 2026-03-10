@@ -1,0 +1,109 @@
+---
+title: Introduction
+description: A simple compiler and interpreter for a custom programming language with arithmetic operations, conditionals, and variable management built using ANTLR4
+---
+
+# Welcome to Mi Compilador
+
+Mi Compilador is a compiler and interpreter for a custom programming language that demonstrates fundamental compiler design principles using ANTLR4. It supports integer variables, arithmetic operations, relational comparisons, and if-else control flow.
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Get up and running in minutes
+  </Card>
+  <Card title="Language Syntax" icon="code" href="/language/syntax">
+    Learn the language syntax and structure
+  </Card>
+  <Card title="Architecture" icon="building" href="/architecture/grammar">
+    Explore the compiler architecture
+  </Card>
+  <Card title="Examples" icon="lightbulb" href="/examples/basic-arithmetic">
+    See practical code examples
+  </Card>
+</CardGroup>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="ANTLR4-Based Parser" icon="gears">
+    Robust lexer and parser generated from a clean grammar definition
+  </Card>
+  <Card title="Visitor Pattern" icon="diagram-project">
+    Clean AST traversal and execution using the visitor pattern
+  </Card>
+  <Card title="Type System" icon="hashtag">
+    Support for integer variables with declarations and assignments
+  </Card>
+  <Card title="Arithmetic Operations" icon="calculator">
+    Full support for +, -, *, / with proper precedence
+  </Card>
+  <Card title="Conditionals" icon="code-branch">
+    If-else statements with relational operators
+  </Card>
+  <Card title="Memory Management" icon="memory">
+    Runtime variable storage and retrieval
+  </Card>
+</CardGroup>
+
+## Example Program
+
+Here's a simple program in Mi Compilador's language:
+
+```text Example.txt
+program {
+    int x;
+    int y;
+    int resultado;
+    
+    x = 10;
+    y = 20;
+    
+    // Arithmetic with precedence
+    resultado = (x + y) * 2 / 5;
+    
+    // Conditional logic
+    if (resultado > 5) {
+        x = 1;
+    } else {
+        x = 0;
+    }
+}
+```
+
+This program:
+1. Declares three integer variables
+2. Performs arithmetic calculations with proper operator precedence
+3. Uses conditional logic based on relational comparisons
+4. Manages variable values in memory throughout execution
+
+## How It Works
+
+Mi Compilador processes source code through several stages:
+
+1. **Lexical Analysis** - The lexer tokenizes the source code into meaningful tokens
+2. **Parsing** - The parser builds an Abstract Syntax Tree (AST) from tokens
+3. **Execution** - The visitor pattern traverses the AST and executes instructions
+4. **Memory Management** - Variables are stored and retrieved from runtime memory
+
+<Note>
+Mi Compilador is designed as an educational tool to demonstrate compiler construction principles. It showcases how ANTLR4 can be used to build a complete language processor with minimal code.
+</Note>
+
+## Next Steps
+
+<Steps>
+  <Step title="Install Dependencies">
+    Set up Python and ANTLR4 on your system
+  </Step>
+  <Step title="Run Your First Program">
+    Execute an example program to see the compiler in action
+  </Step>
+  <Step title="Explore the Language">
+    Learn the full syntax and language features
+  </Step>
+  <Step title="Understand the Architecture">
+    Dive into how the compiler is structured
+  </Step>
+</Steps>
+
+Ready to get started? Head over to the [Installation](/installation) guide.

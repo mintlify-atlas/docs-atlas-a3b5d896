@@ -1,0 +1,279 @@
+---
+title: ANTLR4 Grammar
+description: Understanding the ANTLR4 grammar definition that defines Mi Compilador's language syntax
+---
+
+# ANTLR4 Grammar
+
+Mi Compilador uses ANTLR4 (ANother Tool for Language Recognition) to define its language syntax through a grammar file. The grammar specifies all valid language constructs and how they should be parsed.
+
+## Grammar File Structure
+
+The complete grammar is defined in `Expresiones.g`:
+
+```antlr Expresiones.g
+grammar Expresiones;
+
+// Program entry point
+root : 'program' '{' instrucciones+ '}' EOF # Prog ;
+
+// Instructions (statements)
+instrucciones
+    : declaracion ';'                       #InstrDecl
+    | asignacion ';'                        #InstrAsig
+    | 'if' '(' exprRelacional ')' bloque ('else' bloque)? #InstrIf
+    ;
+
+// Code block
+bloque : '{' instrucciones* '}' ;
+
+// Variable declaration
+declaracion : 'int' ID ;
+
+// Variable assignment
+asignacion : ID '=' expr ;
+
+// Arithmetic expressions
+expr: expr (MUL | DIV) expr    #Aritmetica
+    | expr (SUM | RES) expr    #Aritmetica
+    | NUM                      #Numero
+    | ID                       #Variable
+    | '(' expr ')'             #Parentesis
+    ;
+
+// Relational expressions
+exprRelacional
+    : expr op=( '>' | '<' | '==' | '>=' | '<=' | '!=' ) expr #Relacional
+    ;
+
+// Tokens
+ID  : [a-zA-Z][a-zA-Z0-9]* ;
+NUM : [0-9]+ ;
+SUM : '+' ;
+RES : '-' ;
+MUL : '*' ;
+DIV : '/' ;
+COMENTARIO : '//' ~[\n\r]* -> skip ;
+```
+
+## Grammar Rules Explained
+
+### Root Rule
+
+```antlr
+root : 'program' '{' instrucciones+ '}' EOF # Prog ;
+```
+
+- Every program must start with the `program` keyword
+- Contains one or more instructions within curly braces
+- `EOF` ensures the entire file is consumed
+- `# Prog` is a label used to generate the `visitProg()` method
+
+### Instructions Rule
+
+```antlr
+instrucciones
+    : declaracion ';'                       #InstrDecl
+    | asignacion ';'                        #InstrAsig
+    | 'if' '(' exprRelacional ')' bloque ('else' bloque)? #InstrIf
+    ;
+```
+
+Defines three types of statements:
+1. **Variable declarations** - Must end with semicolon
+2. **Assignments** - Must end with semicolon
+3. **If statements** - Optional else clause, no semicolon
+
+Each alternative has a label (`#InstrDecl`, `#InstrAsig`, `#InstrIf`) that generates corresponding visitor methods.
+
+### Block Rule
+
+```antlr
+bloque : '{' instrucciones* '}' ;
+```
+
+- Defines a code block with curly braces
+- Can contain zero or more instructions
+- Used for if/else bodies
+
+### Declaration Rule
+
+```antlr
+declaracion : 'int' ID ;
+```
+
+- Variables must be declared with the `int` keyword
+- Followed by an identifier (variable name)
+
+### Assignment Rule
+
+```antlr
+asignacion : ID '=' expr ;
+```
+
+- Assigns the result of an expression to a variable
+- Uses the `=` operator
+- Right-hand side must be a valid expression
+
+### Expression Rule
+
+```antlr
+expr: expr (MUL | DIV) expr    #Aritmetica
+    | expr (SUM | RES) expr    #Aritmetica
+    | NUM                      #Numero
+    | ID                       #Variable
+    | '(' expr ')'             #Parentesis
+    ;
+```
+
+This rule defines operator precedence through ordering:
+
+1. **Multiplication and Division** (highest precedence) - First alternative
+2. **Addition and Subtraction** (lower precedence) - Second alternative
+3. **Literals** - Numbers and variables
+4. **Parentheses** - Override precedence
+
+<Note>
+The order of alternatives in ANTLR determines precedence. Rules listed first have higher precedence.
+</Note>
+
+### Relational Expression Rule
+
+```antlr
+exprRelacional
+    : expr op=( '>' | '<' | '==' | '>=' | '<=' | '!=' ) expr #Relacional
+    ;
+```
+
+- Compares two expressions using relational operators
+- The `op=` syntax captures which operator was used
+- Returns a boolean result (true/false)
+
+## Token Definitions
+
+### Identifiers
+
+```antlr
+ID : [a-zA-Z][a-zA-Z0-9]* ;
+```
+
+- Must start with a letter
+- Can contain letters and numbers
+- Case-sensitive
+
+### Numbers
+
+```antlr
+NUM : [0-9]+ ;
+```
+
+- One or more digits
+- Integer literals only
+- No decimal points or negative signs
+
+### Operators
+
+```antlr
+SUM : '+' ;
+RES : '-' ;
+MUL : '*' ;
+DIV : '/' ;
+```
+
+Each arithmetic operator is defined as a token for clarity and reusability.
+
+### Comments
+
+```antlr
+COMENTARIO : '//' ~[\n\r]* -> skip ;
+```
+
+- Single-line comments start with `//`
+- Continue until end of line
+- `-> skip` tells ANTLR to ignore these tokens
+
+## How Precedence Works
+
+The grammar encodes operator precedence:
+
+```text
+Highest:  * /
+Middle:   + -
+Lowest:   > < == != >= <=
+```
+
+Example:
+```text
+2 + 3 * 4
+```
+
+Parsed as:
+```text
+2 + (3 * 4)  // = 2 + 12 = 14
+```
+
+Not as:
+```text
+(2 + 3) * 4  // = 5 * 4 = 20
+```
+
+## Left Recursion
+
+The `expr` rule uses left recursion:
+
+```antlr
+expr: expr (MUL | DIV) expr
+```
+
+This allows expressions to grow to the left, enabling parsing of chains like:
+```text
+1 + 2 + 3 + 4
+```
+
+ANTLR4 handles left recursion automatically.
+
+## Modifying the Grammar
+
+To extend the language, modify `Expresiones.g` and regenerate the parser:
+
+<Steps>
+  <Step title="Edit the grammar file">
+    Add new rules or tokens to `Expresiones.g`
+  </Step>
+  <Step title="Regenerate the parser">
+    Run: `antlr4 -Dlanguage=Python3 -visitor Expresiones.g`
+  </Step>
+  <Step title="Implement visitor methods">
+    Add corresponding methods in `Visitor.py`
+  </Step>
+  <Step title="Test your changes">
+    Create test programs to verify the new features
+  </Step>
+</Steps>
+
+<Warning>
+Always regenerate the parser after modifying the grammar. The generated files (`ExpresionesLexer.py`, `ExpresionesParser.py`) must stay in sync with the grammar.
+</Warning>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Labels" icon="tag">
+    Add `#Label` to alternatives for cleaner visitor methods
+  </Card>
+  <Card title="Order Matters" icon="list-ol">
+    List higher-precedence operations first in expressions
+  </Card>
+  <Card title="Avoid Ambiguity" icon="triangle-exclamation">
+    Ensure each input has exactly one parse tree
+  </Card>
+  <Card title="Test Thoroughly" icon="vial">
+    Test edge cases and operator combinations
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+- Learn how the [Lexer and Parser](/architecture/lexer-parser) process the grammar
+- Understand the [Visitor Pattern](/architecture/visitor-pattern) implementation
+- Explore [Extending the Grammar](/development/extending-grammar) for custom features

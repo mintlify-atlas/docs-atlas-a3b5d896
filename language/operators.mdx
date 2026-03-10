@@ -1,0 +1,333 @@
+---
+title: 'Operators'
+description: 'Arithmetic and relational operators with precedence rules'
+---
+
+# Operators
+
+Mi Compilador supports arithmetic operators for calculations and relational operators for comparisons.
+
+## Arithmetic Operators
+
+Arithmetic operators perform mathematical calculations on integer values.
+
+### Binary Operators
+
+| Operator | Name | Symbol | Example | Description |
+|----------|------|--------|---------|-------------|
+| **Addition** | SUM | `+` | `x + y` | Adds two values |
+| **Subtraction** | RES | `-` | `x - y` | Subtracts right from left |
+| **Multiplication** | MUL | `*` | `x * y` | Multiplies two values |
+| **Division** | DIV | `/` | `x / y` | Divides left by right (integer division) |
+
+### Grammar Definition
+
+```bnf
+SUM : '+'
+RES : '-'
+MUL : '*'
+DIV : '/'
+```
+
+### Examples
+
+```c
+program {
+    int x;
+    int y;
+    int resultado;
+    
+    x = 10;
+    y = 5;
+    
+    resultado = x + y;    // resultado = 15
+    resultado = x - y;    // resultado = 5
+    resultado = x * y;    // resultado = 50
+    resultado = x / y;    // resultado = 2
+}
+```
+
+## Operator Precedence
+
+<Warning>
+Operator precedence determines the order in which operations are evaluated.
+</Warning>
+
+### Precedence Levels
+
+1. **Highest**: Parentheses `( )`
+2. **High**: Multiplication `*`, Division `/`
+3. **Low**: Addition `+`, Subtraction `-`
+
+### Grammar Rules
+
+```bnf
+expr: expr (MUL | DIV) expr    # Higher precedence
+    | expr (SUM | RES) expr    # Lower precedence
+    | NUM                      # Number literal
+    | ID                       # Variable
+    | '(' expr ')'             # Parentheses
+```
+
+The grammar is structured so that multiplication and division are evaluated before addition and subtraction.
+
+### Precedence Examples
+
+#### Example 1: Multiplication Before Addition
+
+```c
+resultado = 2 + 3 * 4;  // resultado = 14, not 20
+// Evaluated as: 2 + (3 * 4) = 2 + 12 = 14
+```
+
+#### Example 2: Division Before Subtraction
+
+```c
+resultado = 20 - 10 / 2;  // resultado = 15, not 5
+// Evaluated as: 20 - (10 / 2) = 20 - 5 = 15
+```
+
+#### Example 3: Left-to-Right for Same Precedence
+
+```c
+resultado = 10 - 5 - 2;  // resultado = 3
+// Evaluated as: (10 - 5) - 2 = 5 - 2 = 3
+
+resultado = 10 / 2 * 3;  // resultado = 15
+// Evaluated as: (10 / 2) * 3 = 5 * 3 = 15
+```
+
+## Parentheses for Grouping
+
+Use parentheses to override default precedence:
+
+```c
+program {
+    int x;
+    int y;
+    int resultado;
+    
+    x = 10;
+    y = 20;
+    
+    // Without parentheses
+    resultado = x + y * 2;      // resultado = 50 (10 + 40)
+    
+    // With parentheses
+    resultado = (x + y) * 2;    // resultado = 60 ((30) * 2)
+}
+```
+
+### Complex Expression Example
+
+```c
+// From Entrada1.txt
+resultado = (x + y) * 2 / 5;
+
+// Evaluation steps with x=10, y=20:
+// 1. (x + y) = (10 + 20) = 30
+// 2. 30 * 2 = 60
+// 3. 60 / 5 = 12
+// resultado = 12
+```
+
+<Tip>
+When in doubt, use parentheses to make your intent clear, even if they're not strictly necessary.
+</Tip>
+
+## Relational Operators
+
+Relational operators compare two values and are used in conditional expressions.
+
+### Comparison Operators
+
+| Operator | Meaning | Example | Description |
+|----------|---------|---------|-------------|
+| `>` | Greater than | `x > y` | True if x is greater than y |
+| `<` | Less than | `x < y` | True if x is less than y |
+| `==` | Equal to | `x == y` | True if x equals y |
+| `!=` | Not equal to | `x != y` | True if x does not equal y |
+| `>=` | Greater or equal | `x >= y` | True if x is greater than or equal to y |
+| `<=` | Less or equal | `x <= y` | True if x is less than or equal to y |
+
+### Grammar Definition
+
+```bnf
+exprRelacional
+    : expr op=( '>' | '<' | '==' | '>=' | '<=' | '!=' ) expr
+```
+
+### Relational Expression Examples
+
+```c
+program {
+    int x;
+    int y;
+    int resultado;
+    
+    x = 10;
+    y = 5;
+    
+    if (x > y) {
+        resultado = 1;  // Executes: 10 > 5 is true
+    }
+    
+    if (x < y) {
+        resultado = 2;  // Doesn't execute: 10 < 5 is false
+    }
+    
+    if (x == 10) {
+        resultado = 3;  // Executes: 10 == 10 is true
+    }
+    
+    if (x != y) {
+        resultado = 4;  // Executes: 10 != 5 is true
+    }
+}
+```
+
+<Note>
+Relational operators can only be used inside `if` statement conditions, not in assignments.
+</Note>
+
+### Expressions in Conditions
+
+You can use full arithmetic expressions on both sides of a relational operator:
+
+```c
+program {
+    int x;
+    int y;
+    int resultado;
+    int control;
+    
+    x = 10;
+    y = 20;
+    resultado = (x + y) * 2 / 5;  // resultado = 12
+    
+    // Using variable in condition
+    if (resultado > 5) {
+        control = 1;  // Executes: 12 > 5 is true
+    }
+    
+    // Using expression in condition
+    if (x + y > 25) {
+        control = 2;  // Executes: 30 > 25 is true
+    }
+}
+```
+
+## Complete Examples
+
+### Example 1: Arithmetic with Precedence
+
+From the test file Entrada1.txt:
+
+```c
+program {
+    int x;
+    int y;
+    int resultado;
+    int control;
+    
+    x = 10;
+    y = 20;
+    
+    // Arithmetic and precedence
+    resultado = (x + y) * 2 / 5;  // = 12
+    
+    // Conditional with relational operator
+    if (resultado > 5) {
+        control = 1;  // This executes
+    } else {
+        control = 0;
+    }
+    
+    // Assignment with variables
+    resultado = resultado + x;  // resultado = 22
+}
+```
+
+### Example 2: Relational Operators
+
+From the test file Entrada2.txt:
+
+```c
+program {
+    int valorUno;
+    int valorDos;
+    int resultado;
+    int exito;
+    int error;
+    
+    valorUno = 5;
+    valorDos = 10;
+    resultado = valorUno + valorDos;  // resultado = 15
+    
+    if (resultado > 10) {
+        exito = 1;  // Executes: 15 > 10 is true
+    } else {
+        error = 0;
+    }
+}
+```
+
+### Example 3: Complex Expressions
+
+```c
+program {
+    int a;
+    int b;
+    int c;
+    int resultado;
+    
+    a = 5;
+    b = 3;
+    c = 2;
+    
+    // Multiple operators with precedence
+    resultado = a + b * c - a / c;
+    // = 5 + (3 * 2) - (5 / 2)
+    // = 5 + 6 - 2
+    // = 9
+    
+    // Parentheses override precedence
+    resultado = (a + b) * (c - a / c);
+    // = (5 + 3) * (2 - 5 / 2)
+    // = 8 * (2 - 2)
+    // = 8 * 0
+    // = 0
+}
+```
+
+## Operator Summary
+
+### Arithmetic Operators
+
+| Precedence | Operators | Associativity |
+|------------|-----------|---------------|
+| High | `*` `/` | Left-to-right |
+| Low | `+` `-` | Left-to-right |
+| Override | `( )` | N/A |
+
+### Relational Operators
+
+| Category | Operators |
+|----------|----------|
+| Equality | `==` `!=` |
+| Comparison | `>` `<` `>=` `<=` |
+
+<Warning>
+Relational operators are only valid in `if` statement conditions. They cannot be used in arithmetic expressions or assignments.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Control Flow" icon="code-branch" href="/language/control-flow">
+    Use operators in conditional statements
+  </Card>
+  <Card title="Syntax" icon="brackets-curly" href="/language/syntax">
+    Review overall language syntax
+  </Card>
+</CardGroup>
