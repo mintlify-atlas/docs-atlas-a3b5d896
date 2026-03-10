@@ -122,6 +122,23 @@ def visitInstrAsig(self, ctx):
   </Step>
 </Steps>
 
+### visitInstrDecl - Variable Declarations
+
+```python Visitor.py
+def visitInstrDecl(self, ctx):
+    # The base implementation does nothing
+    return self.visitChildren(ctx)
+```
+
+- Handles variable declaration statements like `int x;`
+- In the current implementation, declarations don't create memory entries
+- Memory entries are only created when variables are assigned values
+- This method exists in the base `ExpresionesVisitor` class but isn't overridden in `Visitor.py`
+
+<Note>
+Variable declarations serve as documentation but don't affect runtime behavior. Variables are created in memory only when assigned.
+</Note>
+
 ### visitAritmetica - Arithmetic Operations
 
 ```python Visitor.py
