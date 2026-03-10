@@ -1,0 +1,73 @@
+{
+  "projectType": "general",
+  "projectName": "Mi Compilador",
+  "projectDescription": "A simple compiler and interpreter for a custom programming language with arithmetic operations, conditionals, and variable management built using ANTLR4.",
+  "theme": "aspen",
+  "primaryColor": "#2563eb",
+  "lightColor": "#60a5fa",
+  "darkColor": "#1e40af",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Language Reference",
+        "pages": [
+          "language/syntax",
+          "language/data-types",
+          "language/operators",
+          "language/control-flow"
+        ]
+      },
+      {
+        "group": "Architecture",
+        "pages": [
+          "architecture/grammar",
+          "architecture/lexer-parser",
+          "architecture/visitor-pattern",
+          "architecture/memory-model"
+        ]
+      },
+      {
+        "group": "Examples",
+        "pages": [
+          "examples/basic-arithmetic",
+          "examples/conditionals",
+          "examples/complex-programs"
+        ]
+      },
+      {
+        "group": "Development",
+        "pages": [
+          "development/extending-grammar",
+          "development/adding-features",
+          "development/testing"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "ANTLR4-based lexer and parser for custom language syntax",
+    "Visitor pattern implementation for AST traversal and execution",
+    "Support for integer variables, arithmetic, and relational operations",
+    "If-else conditional statements with block scoping",
+    "Runtime memory management and variable tracking",
+    "Syntax error detection and validation"
+  ],
+  "publicApiSurface": [
+    "Visitor class - Main interpreter with memory management",
+    "ExpresionesLexer - Tokenizes source code",
+    "ExpresionesParser - Parses tokens into AST",
+    "Prueba.py - Main entry point for executing programs",
+    "visitProg() - Entry point for program execution",
+    "visitAritmetica() - Handles arithmetic operations",
+    "visitRelacional() - Evaluates relational expressions",
+    "visitInstrIf() - Executes if-else statements"
+  ]
+}
